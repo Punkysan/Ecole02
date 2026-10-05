@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎲 Chasse aux Paires de 10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #ff9e40;
+            --success: #4caf50;
+            --error: #f44336;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .game-container {
+            background-color: var(--card);
+            border-radius: 30px;
+            padding: 40px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            color: var(--primary);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .card.hidden {
+            background-color: #f0f0f0;
+            color: var(--primary);
+        }
+
+        .card.hidden::before {
+            content: "?";
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .card.matched {
+            background-color: var(--success);
+            cursor: default;
+            transform: scale(0.95);
+        }
+
+        .feedback {
+            font-size: 1.8rem;
+            margin: 20px 0;
+            min-height: 30px;
+            font-weight: 600;
+        }
+
+        #next-level-btn {
+            display: none;
+            margin: 20px auto;
+            padding: 15px 35px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s;
+        }
+
+        #next-level-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .visual-aid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .ten-box {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(74, 144, 226, 0.8);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .ten-box::after {
+            content: "10";
+            position: absolute;
+            font-size: 0.8rem;
+            color: white;
+            bottom: 5px;
+        }
+
+        .unit-bead {
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .aid-group {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sign {
+            font-size: 1.8rem;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .result {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+        }
+
+        .score-container {
+            display: none;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .score-bar-container {
+            width: 100%;
+            height: 30px;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+
+        .score-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #4caf50, #8bc34a);
+            transition: none;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+            }
+            .card {
+                height: 80px;
+                font-size: 2rem;
+            }
+            .card.hidden::before {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎲 Chasse aux Paires de 10</h1>
+
+        <div class="instructions">
+            Retourne les cartes pour trouver les paires qui font 10 !<br>
+            Moins tu retournes de cartes, meilleur sera ton score.
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="game-board" id="game-board"></div>
+
+        <div class="visual-aid" id="visual-aid"></div>
+
+        <div class="score-container" id="score-container">
+            <div class="score-bar-container">
+                <div class="score-bar" id="score-bar">0</div>
+            </div>
+        </div>
+
+        <button id="next-level-btn" onclick="resetGame()">Rejouer</button>
+    </div>
+
+    <script>
+        // Variables globales
+        let score = 100;
+        let tentatives = 0;
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+        const maxPairs = 5;
+        const gameBoard = document.getElementById("game-board");
+        const feedbackElement = document.getElementById("feedback");
+        const scoreBar = document.getElementById("score-bar");
+        const nextLevelBtn = document.getElementById("next-level-btn");
+        const visualAid = document.getElementById("visual-aid");
+        const scoreContainer = document.getElementById("score-container");
+
+        // Paires possibles pour faire 10
+        const pairs = [
+            [1, 9], [2, 8], [3, 7], [4, 6], [5, 5]
+        ];
+
+        // Mélange les paires et crée les cartes
+        function createBoard() {
+            score = 100;
+            tentatives = 0;
+            feedbackElement.textContent = "";
+            nextLevelBtn.style.display = "none";
+            visualAid.innerHTML = "";
+            scoreContainer.style.display = "none";
+            scoreBar.textContent = "0";
+            scoreBar.style.width = "0%";
+
+            // Crée une liste de cartes mélangées de manière optimale
+            let cards = [];
+            pairs.forEach(pair => {
+                cards.push(pair[0], pair[1]);
+            });
+
+            // Mélange les cartes de manière aléatoire
+            cards = shuffleArray(cards);
+
+            // Vérifie que les paires ne sont pas côte à côte
+            while (hasAdjacentPairs(cards)) {
+                cards = shuffleArray(cards);
+            }
+
+            // Crée les cartes
+            gameBoard.innerHTML = "";
+            cards.forEach((number) => {
+                const card = document.createElement("div");
+                card.className = "card hidden";
+                card.dataset.value = number;
+                card.addEventListener("click", flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        // Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Vérifie si des paires sont côte à côte
+        function hasAdjacentPairs(cards) {
+            for (let i = 0; i < cards.length; i += 2) {
+                for (let j = 0; j < pairs.length; j++) {
+                    const pair = pairs[j];
+                    if (
+                        (cards[i] === pair[0] && cards[i + 1] === pair[1]) ||
+                        (cards[i] === pair[1] && cards[i + 1] === pair[0])
+                    ) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Retourne une carte
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.remove("hidden");
+            this.textContent = this.dataset.value;
+
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            lockBoard = true;
+            tentatives++;
+
+            // Chaque tentative ratée retire 2 points
+            if (tentatives > maxPairs) {
+                score = Math.max(0, score - 2);
+            }
+
+            checkForMatch();
+        }
+
+        // Vérifie si les cartes forment une paire de 10
+        function checkForMatch() {
+            const firstValue = parseInt(firstCard.dataset.value);
+            const secondValue = parseInt(secondCard.dataset.value);
+
+            if (firstValue + secondValue === 10) {
+                disableCards();
+                feedbackElement.textContent = "✅ Bravo !";
+                feedbackElement.style.color = "var(--success)";
+                showVisualAid(firstValue, secondValue);
+
+                if (document.querySelectorAll('.card.matched').length === 10) {
+                    endGame();
+                }
+            } else {
+                feedbackElement.textContent = "❌ Essaie encore !";
+                feedbackElement.style.color = "var(--error)";
+                unflipCards();
+            }
+        }
+
+        // Affiche une aide visuelle pour la compréhension des compléments à 10
+        function showVisualAid(num1, num2) {
+            visualAid.innerHTML = "";
+
+            // Crée les groupes pour chaque nombre (en ligne)
+            const firstGroup = createNumberGroup(num1);
+            const secondGroup = createNumberGroup(num2);
+
+            visualAid.appendChild(firstGroup);
+            visualAid.appendChild(createSign("+"));
+            visualAid.appendChild(secondGroup);
+            visualAid.appendChild(createSign("="));
+            visualAid.appendChild(createResult("10"));
+        }
+
+        // Crée un groupe visuel pour un nombre (sacs de 10 + billes unitaires)
+        function createNumberGroup(number) {
+            const group = document.createElement("div");
+            group.className = "aid-group";
+
+            // Dizaines (sacs de 10 billes)
+            const tens = Math.floor(number / 10);
+            for (let i = 0; i < tens; i++) {
+                const tenBox = document.createElement("div");
+                tenBox.className = "ten-box";
+                group.appendChild(tenBox);
+            }
+
+            // Unités (billes seules)
+            const units = number % 10;
+            for (let i = 0; i < units; i++) {
+                const unitBead = document.createElement("div");
+                unitBead.className = "unit-bead";
+                group.appendChild(unitBead);
+            }
+
+            return group;
+        }
+
+        // Crée un signe (+ ou =)
+        function createSign(sign) {
+            const element = document.createElement("div");
+            element.className = "sign";
+            element.textContent = sign;
+            return element;
+        }
+
+        // Crée le résultat
+        function createResult(text) {
+            const element = document.createElement("div");
+            element.className = "result";
+            element.textContent = text;
+            return element;
+        }
+
+        // Désactive les cartes si elles forment une paire
+        function disableCards() {
+            firstCard.classList.add("matched");
+            secondCard.classList.add("matched");
+            firstCard.removeEventListener("click", flipCard);
+            secondCard.removeEventListener("click", flipCard);
+            resetBoard();
+        }
+
+        // Retourne les cartes si elles ne forment pas une paire
+        function unflipCards() {
+            setTimeout(() => {
+                firstCard.classList.add("hidden");
+                secondCard.classList.add("hidden");
+                firstCard.textContent = "";
+                secondCard.textContent = "";
+                resetBoard();
+            }, 1000);
+        }
+
+        // Réinitialise le plateau
+        function resetBoard() {
+            [firstCard, secondCard, lockBoard] = [null, null, false];
+        }
+
+        // Fin du jeu
+        function endGame() {
+            feedbackElement.textContent = `🎉 Tu as trouvé toutes les paires en ${tentatives} tentatives !`;
+            scoreContainer.style.display = "block";
+            nextLevelBtn.style.display = "block";
+
+            // Animation de la barre de score
+            animateScore();
+        }
+
+        // Anime la barre de score de 0 au score final
+        function animateScore() {
+            let currentScore = 0;
+            const animationDuration = 2000; // Durée de l'animation en ms
+            const startTime = Date.now();
+
+            const updateScore = () => {
+                const elapsedTime = Date.now() - startTime;
+                const progress = Math.min(elapsedTime / animationDuration, 1);
+                currentScore = Math.floor(progress * score);
+
+                scoreBar.textContent = currentScore;
+                scoreBar.style.width = `${(currentScore / 100) * 100}%`;
+
+                // Change la couleur en fonction du score
+                if (currentScore === 100) {
+                    scoreBar.style.background = "linear-gradient(to right, #FFD700, #FF8C00)";
+                } else if (currentScore > 50) {
+                    scoreBar.style.background = "linear-gradient(to right, #4caf50, #8bc34a)";
+                } else if (currentScore > 20) {
+                    scoreBar.style.background = "linear-gradient(to right, #ff9800, #ffc107)";
+                } else {
+                    scoreBar.style.background = "linear-gradient(to right, #f44336, #d32f2f)";
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateScore);
+                } else {
+                    if (score === 100) {
+                        feedbackElement.textContent += " 🏆 Score parfait !";
+                    }
+                }
+            };
+
+            requestAnimationFrame(updateScore);
+        }
+
+        // Réinitialise le jeu
+        function resetGame() {
+            createBoard();
+        }
+
+        // Démarre le jeu
+        createBoard();
+    </script>
+</body>
+</html>

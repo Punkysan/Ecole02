@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ligne Graduée - Trouve le Nombre !</title>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2e86de;
+            --secondary-color: #ff7e5f;
+            --accent-color: #7950f2;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --light-gray: #e9ecef;
+            --dark-gray: #495057;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            text-align: center;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 30px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .game-container {
+            background-color: var(--card-color);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 2px solid var(--light-gray);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 3.5rem;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            color: var(--dark-gray);
+        }
+
+        .score {
+            background-color: var(--secondary-color);
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-size: 1.6rem;
+        }
+
+        .question-text {
+            font-size: 2.2rem;
+            margin: 25px 0;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .number-line-container {
+            margin: 40px auto;
+            position: relative;
+            height: 150px;
+            width: 90%;
+            background-color: var(--card-color);
+            border-radius: 15px;
+            border: 2px solid var(--light-gray);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .number-line {
+            display: flex;
+            justify-content: space-between;
+            height: 100%;
+            position: relative;
+            padding: 0 30px;
+            box-sizing: border-box;
+            align-items: flex-end;
+        }
+
+        .number-line::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--primary-color);
+            z-index: 0;
+        }
+
+        .number {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .number-mark {
+            width: 4px;
+            height: 80px; /* Augmenté pour toucher la ligne */
+            background-color: var(--primary-color);
+            margin-bottom: 5px;
+            margin-top: 0; /* Suppression de la marge pour que le trait touche la ligne */
+            border-radius: 2px;
+        }
+
+        .number-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-family: 'Quicksand', sans-serif;
+            margin-top: 5px;
+        }
+
+        .arrow-container {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            pointer-events: none;
+        }
+
+        .arrow {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 30px solid var(--secondary-color);
+            z-index: 2;
+            transform: translateX(-50%);
+            transition: left 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+        }
+
+        .arrow::after {
+            content: "";
+            position: absolute;
+            top: -25px;
+            left: -10px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 20px solid gold;
+        }
+
+        .propositions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            margin: 40px auto;
+            max-width: 90%;
+        }
+
+        .proposition-btn {
+            padding: 15px 20px;
+            font-size: 1.4rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 100px;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            border: 2px solid var(--primary-color);
+        }
+
+        .proposition-btn:hover {
+            background-color: #2c7be5;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #feedback {
+            font-size: 2rem;
+            margin: 25px 0;
+            min-height: 40px;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            width: 80%;
+            margin: 30px auto;
+            background-color: var(--light-gray);
+            border-radius: 12px;
+            height: 15px;
+            border: 1px solid var(--light-gray);
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+
+        #victory-message {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin: 30px 0;
+            display: none;
+            animation: victoryZoom 1.5s ease-out;
+            transform: scale(0.5);
+            opacity: 0;
+            font-family: 'Luckiest Guy', cursive;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes victoryZoom {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            70% { transform: rotate(5deg); }
+            80% { transform: rotate(-5deg); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 100;
+        }
+
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 4px currentColor;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        #next-level-btn {
+            display: none;
+            margin: 30px auto;
+            padding: 18px 40px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #next-level-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 70%);
+            display: none;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1200px) {
+            .game-container {
+                padding: 30px;
+                max-width: 950px;
+            }
+
+            h1 {
+                font-size: 2.8rem;
+            }
+
+            .number-line-container {
+                height: 130px;
+            }
+
+            #victory-message {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .propositions {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+
+            .proposition-btn {
+                padding: 12px 15px;
+                font-size: 1.2rem;
+            }
+
+            #victory-message {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Trouve le nombre !</h1>
+
+        <div class="score-container">
+            <div>Score : <span id="score">0</span>/5</div>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div class="question-text" id="question-text">
+            Trouve le nombre indiqué par la flèche (entre <span id="min-number">4</span> et <span id="max-number">14</span>) :
+        </div>
+
+        <div class="number-line-container">
+            <div class="arrow-container">
+                <div class="arrow" id="arrow"></div>
+            </div>
+            <div class="number-line" id="number-line"></div>
+        </div>
+
+        <div id="feedback"></div>
+
+        <div class="propositions" id="propositions"></div>
+
+        <div id="victory-message">🎉 Bravo, tu as gagné ! 🎉</div>
+
+        <button id="next-level-btn" onclick="reinitialiserJeu()">Recommencer</button>
+    </div>
+
+    <div class="flash" id="flash"></div>
+    <div id="fireworks"></div>
+
+    <script>
+        // Variables globales
+        let score = 0;
+        let maxScore = 5;
+        let minNumber = 4;
+        let maxNumber = 14;
+        let targetNumber = 0;
+        const progressBar = document.getElementById("progress-bar");
+        const victoryMessage = document.getElementById("victory-message");
+        const nextLevelBtn = document.getElementById("next-level-btn");
+        const numberLine = document.getElementById("number-line");
+        const propositionsDiv = document.getElementById("propositions");
+        const arrow = document.getElementById("arrow");
+        const feedbackDiv = document.getElementById("feedback");
+        const questionText = document.getElementById("question-text");
+        const minNumberSpan = document.getElementById("min-number");
+        const maxNumberSpan = document.getElementById("max-number");
+        const fireworks = document.getElementById("fireworks");
+        const flash = document.getElementById("flash");
+
+        // Initialise le jeu
+        function initGame() {
+            score = 0;
+            document.getElementById("score").textContent = score;
+            progressBar.style.width = "0%";
+            victoryMessage.style.display = "none";
+            nextLevelBtn.style.display = "none";
+            fireworks.style.display = "none";
+            flash.style.display = "none";
+            document.body.style.backgroundColor = "var(--background-color)";
+            genererQuestion();
+        }
+
+        // Génère une nouvelle question
+        function genererQuestion() {
+            propositionsDiv.innerHTML = "";
+            numberLine.innerHTML = "";
+
+            // Intervalle aléatoire entre 5 et 11
+            const interval = Math.floor(Math.random() * 7) + 5;
+
+            // minNumber aléatoire entre 1 et 90 pour que maxNumber ne dépasse pas 99
+            minNumber = Math.floor(Math.random() * 90) + 1;
+            maxNumber = minNumber + interval;
+
+            if (maxNumber > 99) {
+                maxNumber = 99;
+                minNumber = maxNumber - interval;
+            }
+
+            // Génère un nombre cible aléatoire entre minNumber et maxNumber, mais jamais sur les extrémités
+            do {
+                targetNumber = Math.floor(Math.random() * (interval + 1)) + minNumber;
+            } while (targetNumber === minNumber || targetNumber === maxNumber);
+
+            questionText.textContent = `Trouve le nombre indiqué par la flèche (entre ${minNumber} et ${maxNumber}) :`;
+            minNumberSpan.textContent = minNumber;
+            maxNumberSpan.textContent = maxNumber;
+
+            // Crée les graduations
+            for (let i = 0; i <= interval; i++) {
+                const number = minNumber + i;
+                const mark = document.createElement("div");
+                mark.className = "number";
+                mark.innerHTML = `
+                    <div class="number-mark" data-number="${number}"></div>
+                    ${i === 0 || i === interval ? `<div class="number-text">${number}</div>` : ''}
+                `;
+                numberLine.appendChild(mark);
+            }
+
+            // Positionne la flèche après que le DOM soit mis à jour
+            setTimeout(() => {
+                const marks = document.querySelectorAll(".number-mark");
+                const targetIndex = targetNumber - minNumber;
+                if (targetIndex >= 0 && targetIndex < marks.length) {
+                    const targetMark = marks[targetIndex];
+                    const markRect = targetMark.getBoundingClientRect();
+                    const lineRect = numberLine.getBoundingClientRect();
+                    const markCenter = markRect.left + markRect.width / 2 - lineRect.left;
+                    arrow.style.left = `${markCenter}px`;
+                }
+            }, 100);
+
+            // Génère 6 propositions INCLUANT TOUJOURS LA BONNE RÉPONSE
+            const propositions = [targetNumber];
+            while (propositions.length < 6) {
+                const prop = Math.floor(Math.random() * (interval + 1)) + minNumber;
+                if (!propositions.includes(prop)) {
+                    propositions.push(prop);
+                }
+            }
+
+            // Mélange les propositions
+            propositions.sort(() => Math.random() - 0.5);
+
+            // Affiche les propositions
+            propositions.forEach(prop => {
+                const btn = document.createElement("button");
+                btn.className = "proposition-btn";
+                btn.textContent = prop;
+                btn.onclick = () => verifierReponse(prop);
+                propositionsDiv.appendChild(btn);
+            });
+
+            // Clic sur les graduations
+            document.querySelectorAll(".number-mark").forEach((mark, index) => {
+                mark.onclick = () => {
+                    verifierReponse(minNumber + index);
+                };
+            });
+
+            feedbackDiv.textContent = "";
+        }
+
+        // Vérifie la réponse
+        function verifierReponse(reponse) {
+            if (reponse === targetNumber) {
+                feedbackDiv.textContent = "✅ Bravo ! +1 point";
+                feedbackDiv.style.color = "var(--success-color)";
+                score++;
+                document.getElementById("score").textContent = score;
+                majProgressBar();
+                if (score >= maxScore) {
+                    lancerVictoire();
+                } else {
+                    setTimeout(genererQuestion, 1000);
+                }
+            } else {
+                feedbackDiv.textContent = `❌ Non, c'était ${targetNumber}.`;
+                feedbackDiv.style.color = "var(--error-color)";
+                setTimeout(genererQuestion, 1000);
+            }
+        }
+
+        // Met à jour la barre de progression
+        function majProgressBar() {
+            const pourcentage = (score / maxScore) * 100;
+            progressBar.style.width = `${pourcentage}%`;
+        }
+
+        // Animation de victoire spectaculaire
+        function lancerVictoire() {
+            victoryMessage.style.display = "block";
+            flash.style.display = "block";
+            setTimeout(() => { flash.style.display = "none"; }, 200);
+            document.body.style.backgroundColor = "#e6f2ff";
+            nextLevelBtn.style.display = "block";
+            fireworks.style.display = "block";
+            lancerFeuxArtifice();
+        }
+
+        // Animation de feux d'artifice
+        function lancerFeuxArtifice() {
+            fireworks.innerHTML = "";
+            const colors = ["#2e86de", "#ff7e5f", "#7950f2", "#4caf50", "#f44336", "#ffd700"];
+
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement("div");
+                    firework.className = "firework";
+                    firework.style.left = `${Math.random() * 100}%`;
+                    firework.style.bottom = "10px";
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    fireworks.appendChild(firework);
+
+                    const height = Math.random() * 400 + 150;
+                    const duration = Math.random() * 1200 + 600;
+
+                    firework.animate([
+                        { transform: "translateY(0)", opacity: 1 },
+                        { transform: `translateY(-${height}px)`, opacity: 0 }
+                    ], {
+                        duration: duration,
+                        easing: "cubic-bezier(0.1, 0.8, 0.2, 1)"
+                    }).onfinish = () => {
+                        firework.remove();
+                        créerExplosion(parseInt(firework.style.left), -height);
+                    };
+                }, i * 200);
+            }
+
+            for (let i = 0; i < 200; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement("div");
+                    confetti.className = "confetti";
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = `-20px`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = `${Math.random() * 12 + 8}px`;
+                    confetti.style.height = confetti.style.width;
+                    fireworks.appendChild(confetti);
+
+                    confetti.animate([
+                        { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+                        { transform: `translateY(${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                    ], {
+                        duration: Math.random() * 4000 + 3000,
+                        easing: "linear"
+                    }).onfinish = () => confetti.remove();
+                }, i * 50);
+            }
+        }
+
+        function créerExplosion(x, y) {
+            const colors = ["#2e86de", "#ff7e5f", "#7950f2", "#4caf50", "#f44336", "#ffd700"];
+            const particleCount = 60;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement("div");
+                particle.className = "firework";
+                particle.style.left = `${x}px`;
+                particle.style.top = `${window.innerHeight - y}px`;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = `${Math.random() * 8 + 5}px`;
+                particle.style.height = particle.style.width;
+                fireworks.appendChild(particle);
+
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 7 + 3;
+                const xVel = velocity * Math.cos(angle);
+                const yVel = velocity * Math.sin(angle);
+                const duration = Math.random() * 1200 + 700;
+
+                particle.animate([
+                    { transform: "translate(0, 0)", opacity: 1 },
+                    { transform: `translate(${xVel * 12}px, ${-yVel * 12}px)`, opacity: 0 }
+                ], {
+                    duration: duration,
+                    easing: "cubic-bezier(0.1, 0.8, 0.2, 1)"
+                }).onfinish = () => particle.remove();
+            }
+        }
+
+        // Réinitialise le jeu
+        function reinitialiserJeu() {
+            initGame();
+        }
+
+        // Démarre le jeu
+        initGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Outils pour la classe</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico"/>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <style>
+        #syllabe {
+            text-align: center;
+            font-size: 200px;
+            font-weight: 400;
+            font-family: Arial, sans-serif;
+        }
+        .voyelle { color: #ED1C24; }
+        .consonne { color: #5092D5; }
+        .special1 { color: #30B441; }
+        .jaune { color: #ED1D70; }
+        @font-face {
+            font-family: 'opendys';
+            src: url('../fonts/opendys.otf') format('opentype');
+        }
+        @font-face {
+            font-family: 'belleallure';
+            src: url('../fonts/belleallure.otf') format('opentype');
+        }
+        @font-face {
+            font-family: 'bebasneue';
+            src: url('../fonts/bebasneue.otf') format('opentype');
+        }
+    </style>
+</head>
+<body>
+<div>
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="http://ecole3492751.free.fr">
+                <img src="../img/house-fill.svg" alt="Accueil" width="30" height="24">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://ecole3492751.free.fr/fluence.html">Fluence</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://ecole3492751.free.fr/nombre.html">Générer des nombres</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Générer des syllabes</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="http://ecole3492751.free.fr/syllabesT.html">Tablette</a></li>
+                            <li><a class="dropdown-item" href="http://ecole3492751.free.fr/syllabesS.html">Speechi</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Fluence PIANO</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="http://ecole3492751.free.fr/pseudomots.html">Pseudo mots</a></li>
+                            <li><a class="dropdown-item" href="http://ecole3492751.free.fr/mots.html">Mots</a></li>
+                            <li><a class="dropdown-item" href="http://ecole3492751.free.fr/IEN.html">IEN</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<div style="height:65px;" align='center'></div>
+<p id="syllabe" style="height:50%;"></p>
+<div style="height:55px;" align='center'></div>
+
+<div class="container-fluid">
+    <table class="table table-sm" width="75%">
+        <thead>
+        <tr>
+            <th style="background-color: #BF70E4;" colspan="7"><label>Choisir une liste :</label></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="background-color: #D5C0DF;" colspan="7">
+                <select id="listSelect" class="form-select">
+                    <option value="">Sélectionnez une liste</option>
+                    <option value="0">Entrainement 1</option>
+                    <option value="1">P</option>
+                    <option value="2">R</option>
+                    <option value="3">T</option>
+                    <option value="4">L</option>
+					<option value="5">K</option>
+					<option value="6">QU</option>
+					<option value="7">GN</option>
+					<option value="8">PH</option>
+                    <!-- Ajoutez d'autres options selon vos besoins -->
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td style="background-color: #BF70E4;"><b>Syllabes par minute :</b>
+                <select id="delai">
+                    <option value="2000">30</option>
+                    <option value="1500">40</option>
+                    <option value="1200">50 (CP)</option>
+                    <option value="1000">60</option>
+                    <option value="858">70 (CE1)</option>
+                    <option value="666">90 (CE2)</option>
+                </select>
+            </td>
+            <td style="background-color: #BF70E4;">
+                <button id="prevButton" class="btn btn-info btn-sm">←</button>
+                <button id="pauseButton" class="btn btn-info btn-sm">Pause</button>
+                <button id="nextButton" class="btn btn-info btn-sm">→</button>
+            </td>
+            <td style="background-color: #BF70E4;">
+                <button id="restartButton" class="btn btn-info btn-sm">Recommencer</button>
+            </td>
+            <td style="background-color: #BF70E4;"><b>Police :</b>
+                <select id="police">
+                    <option value="Arial">Scripte</option>
+                    <option value="opendys">Anti confusion</option>
+                    <option value="belleallure">Cursive</option>
+                    <option value="bebasneue">Capitale</option>
+                </select>
+            </td>
+            <td style="background-color: #BF70E4;" colspan="2"><input type="checkbox" id="colorerVoyellesConsonnes">
+                <label for="colorerVoyellesConsonnes"><b>Ajouter des couleurs</b></label></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+const files = ["../listIEN/IEN1.txt", "../listIEN/IEN2.txt", "../listIEN/IEN3.txt", "../listIEN/IEN4.txt", "../listIEN/IEN5.txt", "../listIEN/IEN6.txt", "../listIEN/IEN7.txt", "../listIEN/IEN8.txt", "../listIEN/IEN9.txt", "../listIEN/IEN10.txt", "../listIEN/IEN11.txt", "../listIEN/IEN12.txt", "../listIEN/IEN13.txt", "../listIEN/IEN14.txt", "../listIEN/IEN15.txt", "../listIEN/IEN16.txt", "../listIEN/IEN17.txt", "../listIEN/IEN18.txt", "../listIEN/IEN19.txt", "../listIEN/IEN20.txt", "../listIEN/IEN21.txt", "../listIEN/IEN22.txt", "../listIEN/IEN23.txt", "../listIEN/IEN24.txt", "../listIEN/IEN25.txt", "../listIEN/IEN26.txt", "../listIEN/IEN27.txt", "../listIEN/IEN28.txt", "../listIEN/IEN29.txt", "../listIEN/IEN30.txt", "../listIEN/IEN31.txt", "../listIEN/IEN32.txt", "../listIEN/IEN33.txt", "../listIEN/IEN34.txt", "../listIEN/IEN35.txt", "../listIEN/IEN36.txt", "../listIEN/IEN37.txt", "../listIEN/IEN38.txt", "../listIEN/IEN39.txt", "../listIEN/IEN40.txt"];
+let intervalID;
+let isPaused = false; // Initialement, il n'est pas en pause
+let currentIndex = 0;
+let syllablesList = [];
+let selectedFiles = [];
+let delay = parseInt(document.getElementById("delai").value);
+
+async function loadFile(file) {
+    try {
+        const response = await fetch(file);
+        if (!response.ok) throw new Error('Ø');
+        return await response.text();
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function loadSelectedFiles() {
+    syllablesList = [];
+    selectedFiles = [];
+    currentIndex = 0;
+
+    const listSelect = document.getElementById("listSelect");
+    const selectedValue = listSelect.value;
+    if (selectedValue !== "") {
+        selectedFiles.push(files[parseInt(selectedValue)]);
+    }
+
+    if (selectedFiles.length === 0) {
+        document.getElementById("syllabe").textContent = "ᵔᴥᵔ";
+        return;
+    }
+
+    const fileContents = await Promise.all(selectedFiles.map(file => loadFile(file)));
+    fileContents.forEach(content => {
+        if (content) {
+            syllablesList.push(...content.trim().split("\n"));
+        }
+    });
+
+    startSyllableInterval();
+}
+
+function startSyllableInterval() {
+    if (!isPaused) {
+        updateSyllabe();
+    }
+}
+
+function updateSyllabe() {
+    if (isPaused || currentIndex >= syllablesList.length) {
+        if (currentIndex >= syllablesList.length) {
+            document.getElementById("syllabe").textContent = "fin";
+        }
+        return;
+    }
+
+    const syllabeElement = document.getElementById("syllabe");
+    const randomSyllabe = syllablesList[currentIndex];
+    currentIndex++;
+
+    const colorerVoyellesConsonnes = document.getElementById("colorerVoyellesConsonnes").checked;
+    let syllabeHtml = '';
+    const voyelles = ['a', 'e', 'i', 'o', 'u', 'y', 'é', 'è', 'ê', 'ë'];
+    const consonnes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z', 'ç', 'k'];
+    const groupeSpecial1 = ['ch', 'ou', 'en', 'an', 'on', 'om', 'in', 'im', 'oi', 'ui', 'eu', 'œu', 'gn', 'au', 'ai', 'ei', 'et', 'qu', 'er', 'ez', 'ph', 'am', 'em', 'ge', 'gu'];
+    const groupeSpecial2 = ['eau', 'oin', 'elle', 'ette', 'erre', 'esse', 'enne', 'ain', 'ein', 'ail', 'eil', 'ouil', 'euil', 'aill', 'eill', 'ouill', 'euill', 'ill'];
+
+    let i = 0;
+    while (i < randomSyllabe.length) {
+        const char = randomSyllabe[i];
+        let isSpecialGroup = false;
+        for (let j = 0; j < groupeSpecial2.length; j++) {
+            const specialGroup = groupeSpecial2[j];
+            if (randomSyllabe.slice(i, i + specialGroup.length) === specialGroup) {
+                syllabeHtml += colorerVoyellesConsonnes ? `<span class="jaune">${specialGroup}</span>` : specialGroup;
+                i += specialGroup.length;
+                isSpecialGroup = true;
+                break;
+            }
+        }
+        if (!isSpecialGroup) {
+            for (let j = 0; j < groupeSpecial1.length; j++) {
+                const specialGroup = groupeSpecial1[j];
+                if (randomSyllabe.slice(i, i + specialGroup.length) === specialGroup) {
+                    syllabeHtml += colorerVoyellesConsonnes ? `<span class="special1">${specialGroup}</span>` : specialGroup;
+                    i += specialGroup.length;
+                    isSpecialGroup = true;
+                    break;
+                }
+            }
+        }
+        if (!isSpecialGroup) {
+            if (voyelles.includes(char.toLowerCase()) && colorerVoyellesConsonnes) {
+                syllabeHtml += `<span class="voyelle">${char}</span>`;
+            } else if (consonnes.includes(char.toLowerCase()) && colorerVoyellesConsonnes) {
+                syllabeHtml += `<span class="consonne">${char}</span>`;
+            } else {
+                syllabeHtml += char;
+            }
+            i++;
+        }
+    }
+    syllabeElement.innerHTML = syllabeHtml;
+
+    if (!isPaused) {
+        intervalID = setTimeout(updateSyllabe, delay);
+    }
+}
+
+function updateSyllabeDisplay() {
+    const syllabeElement = document.getElementById("syllabe");
+    const randomSyllabe = syllablesList[currentIndex];
+
+    const colorerVoyellesConsonnes = document.getElementById("colorerVoyellesConsonnes").checked;
+    let syllabeHtml = '';
+    const voyelles = ['a', 'e', 'i', 'o', 'u', 'y', 'é', 'è', 'ê', 'ë'];
+    const consonnes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z', 'ç', 'k'];
+    const groupeSpecial1 = ['ch', 'ou', 'en', 'an', 'on', 'om', 'in', 'im', 'oi', 'ui', 'eu', 'œu', 'gn', 'au', 'ai', 'ei', 'et', 'qu', 'er', 'ez', 'ph', 'am', 'em', 'ge', 'gu'];
+    const groupeSpecial2 = ['eau', 'oin', 'elle', 'ette', 'erre', 'esse', 'enne', 'ain', 'ein', 'ail', 'eil', 'ouil', 'euil', 'aill', 'eill', 'ouill', 'euill', 'ill'];
+
+    let i = 0;
+    while (i < randomSyllabe.length) {
+        const char = randomSyllabe[i];
+        let isSpecialGroup = false;
+        for (let j = 0; j < groupeSpecial2.length; j++) {
+            const specialGroup = groupeSpecial2[j];
+            if (randomSyllabe.slice(i, i + specialGroup.length) === specialGroup) {
+                syllabeHtml += colorerVoyellesConsonnes ? `<span class="jaune">${specialGroup}</span>` : specialGroup;
+                i += specialGroup.length;
+                isSpecialGroup = true;
+                break;
+            }
+        }
+        if (!isSpecialGroup) {
+            for (let j = 0; j < groupeSpecial1.length; j++) {
+                const specialGroup = groupeSpecial1[j];
+                if (randomSyllabe.slice(i, i + specialGroup.length) === specialGroup) {
+                    syllabeHtml += colorerVoyellesConsonnes ? `<span class="special1">${specialGroup}</span>` : specialGroup;
+                    i += specialGroup.length;
+                    isSpecialGroup = true;
+                    break;
+                }
+            }
+        }
+        if (!isSpecialGroup) {
+            if (voyelles.includes(char.toLowerCase()) && colorerVoyellesConsonnes) {
+                syllabeHtml += `<span class="voyelle">${char}</span>`;
+            } else if (consonnes.includes(char.toLowerCase()) && colorerVoyellesConsonnes) {
+                syllabeHtml += `<span class="consonne">${char}</span>`;
+            } else {
+                syllabeHtml += char;
+            }
+            i++;
+        }
+    }
+    syllabeElement.innerHTML = syllabeHtml;
+}
+
+document.getElementById("listSelect").addEventListener("change", loadSelectedFiles);
+
+document.getElementById("delai").addEventListener("input", function() {
+    delay = parseInt(this.value);
+    if (!isPaused) {
+        clearTimeout(intervalID);
+        startSyllableInterval();
+    }
+});
+
+document.getElementById("pauseButton").addEventListener("click", function() {
+    if (isPaused) {
+        // Redémarrer la lecture
+        isPaused = false;
+        startSyllableInterval();
+        this.textContent = "Pause";
+    } else {
+        // Mettre en pause la lecture
+        isPaused = true;
+        clearTimeout(intervalID);
+        this.textContent = "Reprendre";
+    }
+});
+
+document.getElementById("restartButton").addEventListener("click", function() {
+    // Réinitialiser l'index et redémarrer la lecture
+    currentIndex = 0;
+    isPaused = false;
+    clearTimeout(intervalID);
+    startSyllableInterval();
+    document.getElementById("pauseButton").textContent = "Pause";
+});
+
+document.getElementById("prevButton").addEventListener("click", function() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateSyllabeDisplay();
+    }
+});
+
+document.getElementById("nextButton").addEventListener("click", function() {
+    if (currentIndex < syllablesList.length - 1) {
+        currentIndex++;
+        updateSyllabeDisplay();
+    }
+});
+
+function changerPolice() {
+    const policeSelectionnee = document.getElementById("police").value;
+    document.getElementById("syllabe").style.fontFamily = policeSelectionnee;
+}
+
+document.getElementById("police").addEventListener("change", changerPolice);
+
+changerPolice();
+loadSelectedFiles();
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+</body>
+</html>

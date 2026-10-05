@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Outils pour la classe</title>
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico"/>
+		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" ></script> <!-- dropdown JS -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <style> 
+        #syllabe {
+            text-align: center; /* Centrer le texte horizontalement */
+			<!-- font-size: 300px; /* Taille de la police 260*/ -->
+            font-weight: 400; /* Gras */
+			<!-- font-family: Arial, sans-serif; /* Police de caractère */ -->
+        }
+		p {vertical-align: middle;}
+        /* CSS pour colorer les voyelles en rouge */
+        .voyelle {
+            color: #ED1C24;
+        }
+
+        /* CSS pour colorer les consonnes en bleu */
+        .consonne {
+            color: #5092D5;
+        }
+
+        /* CSS pour colorer les groupes spéciaux en vert */
+        .special1 {
+            color: #30B441;
+        }
+		/* CSS pour colorer les groupes spécifiques en jaune */
+		.jaune
+			{
+		color: #ED1D70;
+			}
+		@font-face
+			{
+            font-family: 'opendys';
+            src:
+				url('../fonts/opendys.otf') format('opentype'),
+			}
+		@font-face
+			{
+			font-family: 'belleallure';
+            src:
+				url('../fonts/belleallure.otf') format('opentype'),
+			}
+		@font-face
+			{
+			font-family: 'bebasneue';
+            src:
+				url('../fonts/bebasneue.otf') format('opentype'),
+			}
+    </style>
+</head>
+<body>
+<div>
+    <nav class="navbar navbar-expand-sm" style="background-color: #D5C0DF;">
+			<div class="container-fluid">
+				<a class="navbar-brand" href="http://ecole3492751.free.fr">
+					<img src="../img/house-fill.svg" alt="Bootstrap" width="30" height="24">
+				</a>
+				<button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link" href="http://ecole3492751.free.fr/fluence.html" >Fluence</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="http://ecole3492751.free.fr/nombre.html">Générer des nombres</a>
+						</li>
+							<ul class="navbar-nav">
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Générer des syllabes</a>
+										<ul class="dropdown-menu dropdown-menu">
+											<li><a class="dropdown-item" href="http://ecole3492751.free.fr/syllabesT.html">Tablette</a></li>
+											<li><a class="dropdown-item" href="http://ecole3492751.free.fr/syllabesS.html">Speechi</a></li>
+										</ul>
+								</li>
+							</ul>
+							<ul class="navbar-nav">
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Fluence PIANO</a>
+										<ul class="dropdown-menu dropdown-menu">
+											<li><a class="dropdown-item" href="http://ecole3492751.free.fr/pseudomots.html">Pseudo mots</a></li>
+											<li><a class="dropdown-item" href="http://ecole3492751.free.fr/mots.html">Mots</a></li>
+											<li><a class="dropdown-item" href="http://ecole3492751.free.fr/IEN.html">IEN</a></li>
+										</ul>
+								</li>
+							</ul>
+				</div>
+		</nav>
+</div>
+<div style="height:100px;" align='center'></div>
+<p id="syllabe"></p>
+<div style="height:100px;" align='center'></div>
+<div class="container-fluid">
+    <table class="table table-sm" width="75%">
+        <thead>
+        <tr>
+            <th  style="background-color: #BF70E4;" colspan="7" scope="col"><label>Choisir un ou plusieurs sons :</label><br></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list1" value="0">
+                <label for="list1">l</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list2" value="1">
+                <label for="list2">r</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list3" value="2">
+                <label for="list3">m</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list4" value="3">
+                <label for="list4">s</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list5" value="4">
+                <label for="list5">ch</label><br></td>
+			<td style="background-color: #D5C0DF;"><input type="checkbox" id="list6" value="5">
+                <label for="list6">f</label><br></td>
+			<td style="background-color: #D5C0DF;"><input type="checkbox" id="list7" value="6">
+                <label for="list7">n</label><br></td>
+        </tr>
+        <tr>
+            
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list8" value="7">
+                <label for="list8">v</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list9" value="8">
+                <label for="list9">j</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list10" value="9">
+                <label for="list10">z</label><br></td>
+			<td style="background-color: #C994E2;"><input type="checkbox" id="list11" value="10">
+                <label for="list11">p</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list12" value="11">
+                <label for="list12">t</label><br></td>
+			<td style="background-color: #C994E2;"><input type="checkbox" id="list13" value="12">
+                <label for="list13">c</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list14" value="13">
+                <label for="list14">d</label><br></td>
+        </tr>
+        <tr>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list15" value="14">
+                <label for="list15">g</label><br></td>
+			<td style="background-color: #D5C0DF;"><input type="checkbox" id="list16" value="15">
+                <label for="list16">b</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list17" value="16">
+                <label for="list17">ou</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list18" value="17">
+                <label for="list18">an en</label><br></td>
+			<td style="background-color: #D5C0DF;"><input type="checkbox" id="list19" value="18">
+                <label for="list19">on om</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list20" value="19">
+                <label for="list20">in im</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list21" value="20">
+                <label for="list21">oi</label><br></td>
+        </tr>
+		<tr>
+			<td style="background-color: #C994E2;"><input type="checkbox" id="list22" value="21">
+                <label for="list22">oin</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list23" value="22">
+                <label for="list23">ui</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list24" value="23">
+                <label for="list23">eu œu</label><br></td>
+			<td style="background-color: #C994E2;"><input type="checkbox" id="list25" value="24">
+                <label for="list25">gn</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list26" value="25">
+                <label for="list26">i y</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list27" value="26">
+                <label for="list27">x</label><br></td>
+			<td style="background-color: #C994E2;"><input type="checkbox" id="list28" value="27">
+                <label for="list28">au eau</label><br></td>
+        </tr>
+		<tr>
+            
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list29" value="28">
+                <label for="list29">ai ei et</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list30" value="29">
+                <label for="list30">elle ette erre ...</label><br></td>
+			<td style="background-color: #D5C0DF;"><input type="checkbox" id="list31" value="30">
+                <label for="list31">qu k ch</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list32" value="31">
+                <label for="list32">er ez</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list33" value="32">
+                <label for="list33">ain ein</label><br></td>
+			<td style="background-color: #D5C0DF;"><input type="checkbox" id="list34" value="33">
+                <label for="list34">ph</label><br></td>
+            <td style="background-color: #D5C0DF;"><input type="checkbox" id="list35" value="34">
+                <label for="list35">am em</label><br></td>
+        </tr>
+		<tr>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list36" value="35">
+                <label for="list36">ç</label><br></td>
+			<td style="background-color: #C994E2;"><input type="checkbox" id="list37" value="36">
+                <label for="list37">g ge</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list38" value="37">
+                <label for="list38">s</label><br></td>
+            <td style="background-color: #C994E2;"><input type="checkbox" id="list39" value="38">
+                <label for="list39">gu</label><br></td>
+			<td style="background-color: #C994E2;"><input type="checkbox" id="list40" value="39">
+                <label for="list40">ill</label><br></td>
+            <td style="background-color: #C994E2;" colspan="2"><input type="checkbox" id="list41" value="40">
+                <label for="list41">ail eil ouil euil</label><br></td>
+        </tr>
+        <tr>
+			<td style="background-color: #BF70E4;" colspan="2"><b>Syllabes par minute :</b>
+				<select id="delai" min="6000" value="6000" onchange="changerPolice()">
+					<option value="6000">10</option>
+					<option value="3000">20</option>
+					<option value="2000">30</option>
+					<option value="1500">40</option>
+					<option value="1200">50 (CP)</option>
+					<option value="1000">60</option>
+					<option value="858">70 (CE1)</option>
+					<option value="666">90 (CE2)</option>
+					<!-- Ajoutez d'autres options de vitesse selon vos besoins -->
+				</select>
+			<td style="background-color: #BF70E4;" colspan="2"><b>Police :</b>
+				<select id="police" onchange="changerPolice()">
+					<option value="Arial">Scripte</option>
+					<option value="opendys">Anti confusion</option>
+					<option value="belleallure">Cursive</option>
+					<option value="bebasneue">Capitale</option>
+					<!-- Ajoutez d'autres options de police selon vos besoins -->
+				</select>
+			</td>
+			<td style="background-color: #BF70E4;" colspan="1">
+				<input type="checkbox" id="add2ToEnd">
+					<label for="add2ToEnd"><b>Inversion</b></label></td>
+            <td style="background-color: #BF70E4;" colspan="2"><input type="checkbox" id="colorerVoyellesConsonnes">
+                <label for="colorerVoyellesConsonnes"><b>Ajouter des couleurs</b></label></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+
+// Fonction pour ajuster la taille de la police en fonction de la longueur de la syllabe et de la taille de l'écran
+function adjustFontSize() {
+    const syllabeElement = document.getElementById("syllabe");
+    const windowWidth = window.innerWidth;
+    const syllabeText = syllabeElement.textContent.trim();
+    const syllabeLength = syllabeText.length;
+
+    // Calculer une taille de police maximale basée sur la longueur de la syllabe et la largeur de l'écran
+    const maxFontSize = Math.min(windowWidth / (syllabeLength * 0.7), 300); // 0.7 est un facteur d'ajustement
+
+    // Appliquer la taille de police maximale à l'élément de syllabe
+    syllabeElement.style.fontSize = maxFontSize + "px";
+}
+
+// Appeler la fonction pour ajuster la taille de la police lors du chargement de la page et lors du redimensionnement de la fenêtre
+window.addEventListener("load", adjustFontSize);
+window.addEventListener("resize", adjustFontSize);
+
+// Tableau contenant les chemins vers vos fichiers texte
+const files =["../listes/l.txt", "../listes/r.txt", "../listes/m.txt", "../listes/s.txt", "../listes/ch.txt", "../listes/f.txt", "../listes/n.txt", "../listes/v.txt", "../listes/j.txt", "../listes/z.txt", "../listes/p.txt", "../listes/t.txt", "../listes/c.txt", "../listes/d.txt", "../listes/g.txt", "../listes/b.txt", "../listes/ou.txt", "../listes/enan.txt", "../listes/onom.txt", "../listes/inim.txt", "../listes/oi.txt", "../listes/oin.txt", "../listes/ui.txt", "../listes/euoeu.txt", "../listes/gn.txt", "../listes/iy.txt", "../listes/x.txt", "../listes/aueau.txt", "../listes/aieiet.txt", "../listes/elleetteerreesseenne.txt", "../listes/quk.txt", "../listes/erez.txt", "../listes/ainein.txt", "../listes/ph.txt", "../listes/emam.txt", "../listes/cçti.txt", "../listes/gge.txt", "../listes/sz.txt", "../listes/gu.txt", "../listes/ill.txt", "../listes/ail.txt"];
+let intervalID;
+
+// Fonction pour charger un fichier texte de manière asynchrone
+async function loadFile(file) {
+    try {
+        const response = await fetch(file);
+        if (!response.ok) {
+            throw new Error('Ø');
+        }
+        const text = await response.text();
+        return text;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// Fonction pour choisir aléatoirement un élément dans un tableau
+function chooseRandomElement(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+// Fonction pour générer une syllabe aléatoire à partir d'une liste spécifique
+async function generateRandomSyllableFromList(file) {
+    const fileContent = await loadFile(file);
+    if (fileContent) {
+        const syllables = fileContent.trim().split("\n");
+        const randomSyllable = chooseRandomElement(syllables);
+        return randomSyllable;
+    } else {
+        return "Ø";
+    }
+}
+
+// Fonction pour mettre à jour le contenu de la page avec une syllabe aléatoire
+async function updateSyllabe() {
+    const syllabeElement = document.getElementById("syllabe");
+    const selectedFiles = [];
+    if (document.getElementById("list1").checked) selectedFiles.push(files[0]);
+    if (document.getElementById("list2").checked) selectedFiles.push(files[1]);
+    if (document.getElementById("list3").checked) selectedFiles.push(files[2]);
+    if (document.getElementById("list4").checked) selectedFiles.push(files[3]);
+    if (document.getElementById("list5").checked) selectedFiles.push(files[4]);
+    if (document.getElementById("list6").checked) selectedFiles.push(files[5]);
+    if (document.getElementById("list7").checked) selectedFiles.push(files[6]);
+    if (document.getElementById("list8").checked) selectedFiles.push(files[7]);
+    if (document.getElementById("list9").checked) selectedFiles.push(files[8]);
+    if (document.getElementById("list10").checked) selectedFiles.push(files[9]);
+    if (document.getElementById("list11").checked) selectedFiles.push(files[10]);
+    if (document.getElementById("list12").checked) selectedFiles.push(files[11]);
+    if (document.getElementById("list13").checked) selectedFiles.push(files[12]);
+    if (document.getElementById("list14").checked) selectedFiles.push(files[13]);
+    if (document.getElementById("list15").checked) selectedFiles.push(files[14]);
+    if (document.getElementById("list16").checked) selectedFiles.push(files[15]);
+    if (document.getElementById("list17").checked) selectedFiles.push(files[16]);
+    if (document.getElementById("list18").checked) selectedFiles.push(files[17]);
+	if (document.getElementById("list19").checked) selectedFiles.push(files[18]);
+	if (document.getElementById("list20").checked) selectedFiles.push(files[19]);
+	if (document.getElementById("list21").checked) selectedFiles.push(files[20]);
+	if (document.getElementById("list22").checked) selectedFiles.push(files[21]);
+	if (document.getElementById("list23").checked) selectedFiles.push(files[22]);
+	if (document.getElementById("list24").checked) selectedFiles.push(files[23]);
+	if (document.getElementById("list25").checked) selectedFiles.push(files[24]);
+	if (document.getElementById("list26").checked) selectedFiles.push(files[25]);
+	if (document.getElementById("list27").checked) selectedFiles.push(files[26]);
+	if (document.getElementById("list28").checked) selectedFiles.push(files[27]);
+	if (document.getElementById("list29").checked) selectedFiles.push(files[28]);
+	if (document.getElementById("list30").checked) selectedFiles.push(files[29]);
+	if (document.getElementById("list31").checked) selectedFiles.push(files[30]);
+	if (document.getElementById("list32").checked) selectedFiles.push(files[31]);
+	if (document.getElementById("list33").checked) selectedFiles.push(files[32]);
+	if (document.getElementById("list34").checked) selectedFiles.push(files[33]);
+	if (document.getElementById("list35").checked) selectedFiles.push(files[34]);
+	if (document.getElementById("list36").checked) selectedFiles.push(files[35]);
+	if (document.getElementById("list37").checked) selectedFiles.push(files[36]);
+	if (document.getElementById("list38").checked) selectedFiles.push(files[37]);
+	if (document.getElementById("list39").checked) selectedFiles.push(files[38]);
+	if (document.getElementById("list40").checked) selectedFiles.push(files[39]);
+	if (document.getElementById("list41").checked) selectedFiles.push(files[40]);
+    
+    const colorerVoyellesConsonnesCheckbox = document.getElementById("colorerVoyellesConsonnes");
+    const colorerVoyellesConsonnes = colorerVoyellesConsonnesCheckbox.checked; // Vérifier si la case à cocher est cochée
+
+    if (selectedFiles.length === 0) {
+        syllabeElement.textContent = "ᵔᴥᵔ";
+        return;
+    }
+    const randomFile = chooseRandomElement(selectedFiles);
+    const randomSyllable = await generateRandomSyllableFromList(randomFile);
+
+    let syllabeHtml = '';
+const voyelles = ['a', 'e', 'i', 'o', 'u', 'y', 'é', 'è', 'ê', 'ë'];
+const consonnes = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z', 'ç', 'k'];
+// Tableau contenant les groupes spéciaux
+const groupeSpecial1 = ['ch', 'ou', 'en', 'an', 'on', 'om', 'in', 'im', 'oi', 'ui', 'eu', 'œu', 'gn', 'au', 'ai', 'ei', 'et', 'qu', 'er', 'ez', 'ph', 'am', 'em', 'ge', 'gu']; // Premier groupe spécial (coloré en vert)
+const groupeSpecial2 = ['eau', 'oin', 'elle', 'ette', 'erre', 'esse', 'enne', 'ain', 'ein', 'ail', 'eil', 'ouil', 'euil', 'aill', 'eill', 'ouill', 'euill', 'ill']; // Deuxième groupe spécial (coloré en jaune)
+
+let i = 0;
+while (i < randomSyllable.length) {
+    const char = randomSyllable[i];
+    let isSpecialGroup = false;
+    for (let j = 0; j < groupeSpecial2.length; j++) {
+        const specialGroup = groupeSpecial2[j];
+        if (randomSyllable.slice(i, i + specialGroup.length) === specialGroup) {
+            if (colorerVoyellesConsonnes) {
+                syllabeHtml += `<span class="jaune">${specialGroup}</span>`;
+            } else {
+                syllabeHtml += specialGroup;
+            }
+            i += specialGroup.length;
+            isSpecialGroup = true;
+            break;
+        }
+    }
+    if (!isSpecialGroup) {
+        for (let j = 0; j < groupeSpecial1.length; j++) {
+            const specialGroup = groupeSpecial1[j];
+            if (randomSyllable.slice(i, i + specialGroup.length) === specialGroup) {
+                if (colorerVoyellesConsonnes) {
+                    syllabeHtml += `<span class="special1">${specialGroup}</span>`;
+                } else {
+                    syllabeHtml += specialGroup;
+                }
+                i += specialGroup.length;
+                isSpecialGroup = true;
+                break;
+            }
+        }
+    }
+    if (!isSpecialGroup) {
+        // Si ce n'est pas un groupe spécial, traiter comme voyelle ou consonne
+        if (voyelles.includes(char.toLowerCase()) && colorerVoyellesConsonnes) {
+            syllabeHtml += `<span class="voyelle">${char}</span>`;
+        } else if (consonnes.includes(char.toLowerCase()) && colorerVoyellesConsonnes) {
+            syllabeHtml += `<span class="consonne">${char}</span>`;
+        } else {
+            syllabeHtml += char;
+        }
+        i++;
+    }
+}
+    syllabeElement.innerHTML = syllabeHtml;
+}
+
+// Ajouter des écouteurs d'événements aux cases à cocher pour mettre à jour la syllabe lorsqu'elles sont cochées ou décochées
+document.getElementById("list1").addEventListener("change", updateSyllabe);
+document.getElementById("list2").addEventListener("change", updateSyllabe);
+document.getElementById("list3").addEventListener("change", updateSyllabe);
+document.getElementById("list4").addEventListener("change", updateSyllabe);
+document.getElementById("list5").addEventListener("change", updateSyllabe);
+document.getElementById("list6").addEventListener("change", updateSyllabe);
+document.getElementById("list7").addEventListener("change", updateSyllabe);
+document.getElementById("list8").addEventListener("change", updateSyllabe);
+document.getElementById("list9").addEventListener("change", updateSyllabe);
+document.getElementById("list10").addEventListener("change", updateSyllabe);
+document.getElementById("list11").addEventListener("change", updateSyllabe);
+document.getElementById("list12").addEventListener("change", updateSyllabe);
+document.getElementById("list13").addEventListener("change", updateSyllabe);
+document.getElementById("list14").addEventListener("change", updateSyllabe);
+document.getElementById("list15").addEventListener("change", updateSyllabe);
+document.getElementById("list16").addEventListener("change", updateSyllabe);
+document.getElementById("list17").addEventListener("change", updateSyllabe);
+document.getElementById("list18").addEventListener("change", updateSyllabe);
+document.getElementById("list19").addEventListener("change", updateSyllabe);
+document.getElementById("list20").addEventListener("change", updateSyllabe);
+document.getElementById("list21").addEventListener("change", updateSyllabe);
+document.getElementById("list22").addEventListener("change", updateSyllabe);
+document.getElementById("list23").addEventListener("change", updateSyllabe);
+document.getElementById("list24").addEventListener("change", updateSyllabe);
+document.getElementById("list25").addEventListener("change", updateSyllabe);
+document.getElementById("list26").addEventListener("change", updateSyllabe);
+document.getElementById("list27").addEventListener("change", updateSyllabe);
+document.getElementById("list28").addEventListener("change", updateSyllabe);
+document.getElementById("list29").addEventListener("change", updateSyllabe);
+document.getElementById("list30").addEventListener("change", updateSyllabe);
+document.getElementById("list31").addEventListener("change", updateSyllabe);
+document.getElementById("list32").addEventListener("change", updateSyllabe);
+document.getElementById("list33").addEventListener("change", updateSyllabe);
+document.getElementById("list34").addEventListener("change", updateSyllabe);
+document.getElementById("list35").addEventListener("change", updateSyllabe);
+document.getElementById("list36").addEventListener("change", updateSyllabe);
+document.getElementById("list37").addEventListener("change", updateSyllabe);
+document.getElementById("list38").addEventListener("change", updateSyllabe);
+document.getElementById("list39").addEventListener("change", updateSyllabe);
+document.getElementById("list40").addEventListener("change", updateSyllabe);
+document.getElementById("list41").addEventListener("change", updateSyllabe);
+
+// Ajouter un écouteur d'événement au champ de saisie de délai pour mettre à jour l'intervalle
+document.getElementById("delai").addEventListener("input", function() {
+    const delai = parseInt(this.value);
+    clearInterval(intervalID); // Arrêter l'ancien intervalle
+    intervalID = setInterval(updateSyllabe, delai); // Mettre à jour le nouvel intervalle
+});
+
+// Récupérer la case à cocher pour ajouter '2' à la fin des noms de fichiers
+const add2ToEndCheckbox = document.getElementById("add2ToEnd");
+
+// Ajouter un écouteur d'événement pour détecter le changement d'état de la case à cocher
+add2ToEndCheckbox.addEventListener("change", function() {
+    // Modifier les noms de fichiers si la case est cochée
+    if (this.checked) {
+        files.forEach((file, index) => {
+            files[index] = file.replace(/\.txt$/, "2.txt");
+        });
+    } else {
+        // Rétablir les noms de fichiers originaux si la case est décochée
+        files.forEach((file, index) => {
+            files[index] = file.replace(/2\.txt$/, ".txt");
+        });
+    }
+    // Mettre à jour la syllabe avec les nouveaux fichiers si nécessaire
+    updateSyllabe();
+});
+
+function changerPolice() {
+        const policeSelectionnee = document.getElementById("police").value;
+        const syllabe = document.getElementById("syllabe"); // Sélectionnez l'élément <p> contenant les syllabes
+
+        // Mettez à jour la police de l'élément <p> contenant les syllabes
+        syllabe.style.fontFamily = policeSelectionnee;
+    }
+
+    // Appel initial pour appliquer la police par défaut
+    changerPolice();
+
+// Mettre en place l'intervalle initial avec un délai de 6000 millisecondes
+intervalID = setInterval(updateSyllabe, 6000);
+
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+</body>
+</html>

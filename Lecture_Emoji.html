@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu de Lecture - Phonèmes Colorés</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-light: #0b5ed7;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-color: #dee2e6;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --transition: all 0.2s ease;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background-color: var(--light-color);
+            margin: 0; padding: 20px;
+            text-align: center; color: var(--dark-color);
+            min-height: 100vh; line-height: 1.6;
+        }
+
+        .header { margin-bottom: 30px; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
+        h1 {
+            font-family: 'Roboto', sans-serif;
+            color: var(--primary-color);
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+        .subtitle { color: var(--secondary-color); font-size: 1.1em; font-weight: 400; }
+
+        .main-container {
+            max-width: 800px; margin: 0 auto;
+            background: white; padding: 30px;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        #setup-screen, #game-screen, #score-screen {
+            display: none; animation: fadeIn 0.3s ease;
+        }
+        #setup-screen { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .setup-title {
+            font-family: 'Roboto', sans-serif; color: var(--dark-color);
+            font-size: 1.6em; font-weight: 600; margin-bottom: 25px; text-align: center;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-label {
+            display: block; font-size: 0.95em; color: var(--secondary-color);
+            margin-bottom: 8px; text-align: left; font-weight: 500;
+        }
+
+        select {
+            width: 100%; max-width: 400px; padding: 12px 16px; font-size: 1em;
+            border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+            background: white; cursor: pointer; margin: 0 auto;
+            font-family: 'Open Sans', Arial, sans-serif; transition: var(--transition); color: var(--dark-color);
+        }
+        select:hover { border-color: var(--primary-light); }
+        select:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+        }
+
+        .info-text {
+            font-size: 0.85em; color: var(--secondary-color); font-style: italic;
+            margin-top: 15px; padding: 10px;
+            background: rgba(13, 110, 253, 0.05); border-radius: var(--radius-sm);
+            border-left: 3px solid var(--primary-color);
+        }
+        .word-count { font-size: 0.9em; color: var(--secondary-color); margin: 15px 0; font-weight: 500; }
+
+        .btn {
+            display: inline-block; padding: 12px 28px; font-size: 1em; font-weight: 500;
+            border: none; border-radius: var(--radius-sm); cursor: pointer;
+            margin: 8px; transition: var(--transition); font-family: 'Open Sans', Arial, sans-serif;
+        }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        .btn-secondary:hover { background-color: #5a6268; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-success:hover { background-color: #157347; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+        .btn-toggle {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; font-size: 0.95em; font-weight: 500;
+            border: 2px solid var(--border-color); border-radius: var(--radius-sm);
+            cursor: pointer; transition: var(--transition); font-family: 'Open Sans', Arial, sans-serif;
+            background: white; color: var(--dark-color); margin: 10px 0;
+        }
+        .btn-toggle:hover { border-color: var(--primary-light); background: var(--light-color); }
+        .btn-toggle.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .btn-toggle.active:hover { background-color: var(--primary-light); border-color: var(--primary-light); }
+
+        .toggle-slider {
+            width: 40px; height: 20px; background: var(--border-color); border-radius: 10px;
+            position: relative; transition: var(--transition);
+        }
+        .btn-toggle.active .toggle-slider { background: var(--primary-color); }
+        .toggle-slider::after {
+            content: ''; position: absolute; width: 16px; height: 16px;
+            border-radius: 50%; background: white; top: 2px; left: 2px;
+            transition: var(--transition);
+        }
+        .btn-toggle.active .toggle-slider::after { transform: translateX(20px); }
+
+        .btn-group { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px; }
+
+        #word {
+            font-family: 'Roboto', sans-serif; font-size: 3.5rem; font-weight: 700;
+            color: #000000; margin: 25px 0; letter-spacing: 1px; text-align: center;
+        }
+        #question-counter {
+            font-family: 'Roboto', sans-serif; font-size: 1.1em;
+            color: var(--secondary-color); margin: 15px 0; font-weight: 500;
+        }
+
+        #emoji-options {
+            display: flex; justify-content: center; gap: 20px;
+            margin: 30px 0; flex-wrap: wrap; padding: 15px;
+        }
+        .emoji-option {
+            font-size: 2.8rem; cursor: pointer; transition: var(--transition);
+            width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: white; border: 2px solid var(--border-color); box-shadow: var(--shadow-sm);
+        }
+        .emoji-option:hover {
+            transform: scale(1.1); box-shadow: var(--shadow-md);
+            border-color: var(--primary-light); background: var(--light-color);
+        }
+        .emoji-option:active { transform: scale(0.95); }
+        .emoji-option.correct {
+            animation: pulse-green 0.5s;
+            background: rgba(25, 135, 84, 0.15) !important;
+            border-color: var(--success-color) !important;
+        }
+        .emoji-option.incorrect {
+            animation: shake 0.5s;
+            background: rgba(220, 53, 69, 0.15) !important;
+            border-color: var(--danger-color) !important;
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .feedback {
+            font-family: 'Roboto', sans-serif; font-size: 1.3em;
+            margin: 15px 0; height: 36px; font-weight: 500; min-height: 36px;
+        }
+        #score-screen h2 {
+            font-family: 'Roboto', sans-serif; color: var(--primary-color);
+            font-size: 2.2em; margin-bottom: 15px; font-weight: 700;
+        }
+        #score {
+            font-family: 'Roboto', sans-serif; font-size: 2.5em;
+            color: var(--dark-color); margin: 20px 0; font-weight: 700;
+        }
+        .progress-container {
+            width: 80%; max-width: 500px; margin: 25px auto; height: 24px;
+            background: var(--border-color); border-radius: var(--radius-lg);
+            overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            height: 100%; width: 0%; border-radius: var(--radius-lg);
+            transition: width 1s ease-out;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+        }
+
+        #levels-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
+            z-index: 1000; overflow-y: auto; backdrop-filter: blur(2px);
+        }
+        #levels-content {
+            background: white; max-width: 90%; width: 900px;
+            margin: 50px auto; padding: 30px;
+            border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color); position: relative;
+        }
+        #close-modal {
+            position: absolute; top: 15px; right: 20px; font-size: 2em;
+            cursor: pointer; color: var(--secondary-color);
+            width: 30px; height: 30px; display: flex;
+            align-items: center; justify-content: center;
+            border-radius: 50%; transition: var(--transition);
+        }
+        #close-modal:hover {
+            color: var(--danger-color);
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .levels-table {
+            width: 100%; border-collapse: collapse;
+            margin-top: 20px; font-size: 0.9em;
+        }
+        .levels-table th, .levels-table td {
+            padding: 12px 15px; text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .levels-table th {
+            background: var(--light-color); font-family: 'Roboto', sans-serif;
+            font-weight: 600; color: var(--dark-color);
+            font-size: 0.9em; text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .levels-table tr:hover { background: rgba(13, 110, 253, 0.05); }
+        .levels-table td { color: var(--dark-color); }
+
+        .phonetic-transcription {
+            font-family: 'Roboto', sans-serif; font-size: 1.2em;
+            margin-top: 8px; font-weight: 400;
+            text-align: center; color: #000000;
+        }
+        .test-hint {
+            font-size: 0.9em; color: #dc3545; font-weight: 500;
+            margin-top: 10px; padding: 8px;
+            background: rgba(220, 53, 69, 0.05);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .main-container { padding: 20px; }
+            h1 { font-size: 1.8em; }
+            #word { font-size: 2.8rem; }
+            .emoji-option { width: 60px; height: 60px; font-size: 2.4rem; }
+            #emoji-options { gap: 15px; }
+            #levels-content { width: 95%; margin: 30px auto; padding: 20px; }
+            .levels-table { font-size: 0.85em; }
+            .levels-table th, .levels-table td { padding: 10px 8px; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5em; }
+            #word { font-size: 2.2rem; }
+            .emoji-option { width: 55px; height: 55px; font-size: 2.2rem; }
+            .btn { padding: 10px 20px; font-size: 0.95em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Associe les mots aux emojis</h1>
+    </div>
+
+    <div class="main-container">
+        <div id="setup-screen">
+            <h2 class="setup-title">⚙️ Configuration ⚙️</h2>
+            <div class="form-group">
+                <label class="form-label" for="graphème-select">Progression des graphèmes :</label>
+                <select id="graphème-select"><option value="-1">Tous les mots (sans restriction)</option></select>
+            </div>
+            <div class="word-count" id="word-count"></div>
+            <button id="check-levels-btn" class="btn btn-secondary">Liste des mots</button>
+            <button id="toggle-coloring" class="btn-toggle active"><span>Coloration ACTIVE</span><span class="toggle-slider"></span></button>
+            <div class="btn-group"><button id="start-game-btn" class="btn btn-primary">Lancer la partie</button></div>
+        </div>
+
+        <div id="game-screen">
+            <div id="word"></div>
+            <div id="phonetic-display" class="phonetic-transcription"></div>
+            <div id="emoji-options"></div>
+            <div id="question-counter"></div>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
+        <div id="score-screen">
+            <h2>Bravo ! 🎉</h2>
+            <div id="score">Score: 0/100</div>
+            <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+            <button id="restart-btn" class="btn btn-success">Rejouer</button>
+        </div>
+    </div>
+
+    <div id="levels-modal">
+        <div id="levels-content">
+            <span id="close-modal">×</span>
+            <h2 class="setup-title">LIste des mots</h2>
+            <div id="levels-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONSTANTES ==========
+        const PHONEMIC_COLORS = {
+            'wɛ̃': '#00008B',
+            'ɔ̃': '#FF0000',
+            'ø': '#495057',
+            'ɛ̃': '#FFA500',
+            'ɑ̃': '#FFD700',
+            'ɛ': '#8B4513',
+            'e': '#f8adb2',
+            'u': '#ADD8E6',
+            'wa': '#198754',
+            'o': '#6f42c1'
+        };
+
+        const GRAPHEME_TO_PHONEME = {
+            'oin': 'wɛ̃', 'oeu': 'ø', 'eau': 'o', 'ain': 'ɛ̃', 'ein': 'ɛ̃', 'ion': 'ɔ̃',
+            'on': 'ɔ̃', 'om': 'ɔ̃', 'eu': 'ø', 'in': 'ɛ̃', 'im': 'ɛ̃',
+            'an': 'ɑ̃', 'am': 'ɑ̃', 'en': 'ɑ̃', 'em': 'ɑ̃',
+            'ai': 'ɛ', 'ei': 'ɛ', 'et': 'ɛ', 'au': 'o', 'ou': 'u', 'oi': 'wa',
+            'ê': 'ɛ', 'é': 'e', 'er': 'e', 'è': 'ɛ'
+        };
+
+        const graphèmeOrder = [
+            "AU", "EAU", "OU", "ON", "OM", "OI", "AN", "AM", "EN",
+            "EM", "AI", "EI", "ê", "ET", "ER", "EZ", "IN", "IM",
+            "AIN", "EIN", "OIN", "IAN", "IEN", "ION",
+            "EU", "OEU", "QU", "GN", "PH",
+            "ELLE", "ETTE", "ESSE", "ERRE", "ENNE", "ILL"
+        ];
+        const MAX_LEVEL = 40;
+
+        // LISTE DES MOTS
+        const wordsForCP = [
+            { word: "Chat", emoji: "🐱", level: -1 },
+            { word: "Renard", emoji: "🦊", level: -1 },
+            { word: "Tigre", emoji: "🐯", level: -1 },
+            { word: "Vache", emoji: "🐮", level: -1 },
+            { word: "Canard", emoji: "🦆", level: -1 },
+            { word: "Pomme", emoji: "🍎", level: -1 },
+            { word: "Banane", emoji: "🍌", level: -1 },
+            { word: "Ananas", emoji: "🍍", level: -1 },
+            { word: "Carotte", emoji: "🥕", level: -1 },
+            { word: "Tomate", emoji: "🍅", level: -1 },
+            { word: "Maïs", emoji: "🌽", level: -1 },
+            { word: "Brocoli", emoji: "🥦", level: -1 },
+            { word: "Pizza", emoji: "🍕", level: -1 },
+            { word: "Frites", emoji: "🍟", level: -1 },
+            { word: "Pâtes", emoji: "🍝", level: -1 },
+            { word: "Biscuit", emoji: "🍪", level: -1 },
+            { word: "Chocolat", emoji: "🍫", level: -1 },
+            { word: "Café", emoji: "☕", level: -1 },
+            { word: "Thé", emoji: "🍵", level: -1 },
+            { word: "Bus", emoji: "🚌", level: -1 },
+            { word: "Métro", emoji: "🚇", level: -1 },
+            { word: "Vélo", emoji: "🚲", level: -1 },
+            { word: "Arbre", emoji: "🌳", level: -1 },
+            { word: "Cactus", emoji: "🌵", level: -1 },
+            { word: "Tulipe", emoji: "🌷", level: -1 },
+            { word: "Parc", emoji: "🏞️", level: -1 },
+            { word: "École", emoji: "🏫", level: -1 },
+            { word: "Hôpital", emoji: "🏥", level: -1 },
+            { word: "Clé", emoji: "🔑", level: -1 },
+            { word: "Radio", emoji: "📻", level: -1 },
+            { word: "Sac", emoji: "👜", level: -1 },
+            { word: "Lune", emoji: "🌙", level: -1 },
+            { word: "Hélico", emoji: "🚁", level: -1 },
+            { word: "Chaussure", emoji: "👟", level: 0 },
+            { word: "Gâteau", emoji: "🍰", level: 1 },
+            { word: "Bateau", emoji: "🚤", level: 1 },
+            { word: "Marteau", emoji: "🔨", level: 1 },
+            { word: "Souris", emoji: "🐭", level: 2 },
+            { word: "Ours", emoji: "🐻", level: 2 },
+            { word: "Tournesol", emoji: "🌻", level: 2 },
+            { word: "Ampoule", emoji: "💡", level: 2 },
+            { word: "Bougie", emoji: "🕯️", level: 2 },
+            { word: "Cochon", emoji: "🐷", level: 3 },
+            { word: "Melon", emoji: "🍈", level: 3 },
+            { word: "Citron", emoji: "🍋", level: 3 },
+            { word: "Bonbon", emoji: "🍬", level: 3 },
+            { word: "Voiture", emoji: "🚗", level: 5 },
+            { word: "Étoile", emoji: "⭐", level: 5 },
+            { word: "Panda", emoji: "🐼", level: 6 },
+            { word: "Mandarine", emoji: "🍊", level: 6 },
+            { word: "Lampe", emoji: "🪔", level: 7 },
+            { word: "Aigle", emoji: "🦅", level: 10 },
+            { word: "Pêche", emoji: "🍑", level: 12 },
+            { word: "Palmier", emoji: "🌴", level: 14 },
+            { word: "Voilier", emoji: "⛵", level: 14 },
+            { word: "Lapin", emoji: "🐰", level: 16 },
+            { word: "Poussin", emoji: "🐥", level: 16 },
+            { word: "Sapin", emoji: "🌲", level: 16 },
+            { word: "Train", emoji: "🚆", level: 18 },
+            { word: "Chien", emoji: "🐶", level: 22 },
+            { word: "Lion", emoji: "🦁", level: 23 },
+            { word: "Avion", emoji: "✈️", level: 23 },
+            { word: "Camion", emoji: "🚚", level: 23 },
+            { word: "Ordinateur", emoji: "💻", level: 24 },
+            { word: "Cœur", emoji: "❤️", level: 25 },
+            { word: "Pastèque", emoji: "🍉", level: 26 },
+            { word: "Banque", emoji: "🏦", level: 26 },
+            { word: "Montagne", emoji: "⛰️", level: 27 },
+            { word: "Téléphone", emoji: "📱", level: 28 },
+            { word: "Sucette", emoji: "🍭", level: 30 },
+            { word: "Feuille", emoji: "🍁", level: 34 },
+            { word: "Grenouille", emoji: "🐸", level: 34 },
+            { word: "Soleil", emoji: "☀️", level: 34 },
+            { word: "Magasin", emoji: "🏪", level: 40 },
+            { word: "Singe", emoji: "🐵", level: 40 },
+            { word: "Oiseau", emoji: "🐦", level: 40 },
+            { word: "Fraise", emoji: "🍓", level: 40 },
+            { word: "Cerise", emoji: "🍒", level: 40 },
+            { word: "Glace", emoji: "🍦", level: 40 },
+            { word: "Taxi", emoji: "🚕", level: 40 },
+            { word: "Maison", emoji: "🏠", level: 40 },
+            { word: "Rose", emoji: "🌹", level: 40 },
+            { word: "Herbe", emoji: "🌿", level: 40 },
+            { word: "Plage", emoji: "🏖️", level: 40 },
+            { word: "Raisin", emoji: "🍇", level: 40 },
+            { word: "Ciseaux", emoji: "✂️", level: 40 }
+        ];
+
+        // TRANSCRIPTIONS PHONÉTIQUES
+        const phoneticTranscriptions = {
+            "Chat": "/ʃa/", "Renard": "/ʁə.naʁ/", "Tigre": "/tiɡʁ/", "Vache": "/vaʃ/", "Canard": "/ka.naʁ/",
+            "Pomme": "/pɔ.m/", "Banane": "/ba.nan/", "Ananas": "/a.na.nas/", "Carotte": "/ka.ʁɔt/", "Tomate": "/tɔ.mat/",
+            "Maïs": "/mɛs/", "Brocoli": "/bʁɔ.ko.li/", "Pizza": "/pid.za/", "Frites": "/fʁit/", "Pâtes": "/pɑt/",
+            "Biscuit": "/bis.kɥi/", "Chocolat": "/ʃɔ.ko.la/", "Café": "/ka.fe/", "Thé": "/te/", "Bus": "/bys/",
+            "Métro": "/met.ʁo/", "Vélo": "/ve.lo/", "Arbre": "/aʁbʁ/", "Cactus": "/kak.tys/", "Tulipe": "/ty.lip/",
+            "Parc": "/paʁk/", "École": "/e.kɔl/", "Hôpital": "/ɔ.pi.tal/", "Clé": "/kle/", "Radio": "/ʁa.djo/",
+            "Sac": "/sak/", "Lune": "/lyn/", "Hélico": "/e.li.kɔ/", "Chaussure": "/ʃo.syʁ/", "Gâteau": "/ɡa.to/",
+            "Bateau": "/ba.to/", "Marteau": "/maʁ.to/", "Souris": "/su.ʁi/", "Ours": "/uʁs/", "Tournesol": "/tuʁ.nə.sɔl/",
+            "Ampoule": "/ɑ̃.pul/", "Bougie": "/bu.ʒi/", "Cochon": "/kɔ.ʃɔ̃/", "Melon": "/mə.lɔ̃/", "Citron": "/si.tʁɔ̃/",
+            "Bonbon": "/bɔ̃.bɔ̃/", "Voiture": "/vwa.tyʁ/", "Étoile": "/e.twal/", "Panda": "/pɑ̃.da/", "Mandarine": "/mɑ̃.da.ʁin/",
+            "Lampe": "/lɑ̃p/", "Aigle": "/ɛɡl/", "Pêche": "/pɛʃ/", "Palmier": "/pal.mje/", "Voilier": "/vwa.lje/",
+            "Lapin": "/la.pɛ̃/", "Poussin": "/pu.sɛ̃/", "Sapin": "/sa.pɛ̃/", "Train": "/tʁɛ̃/", "Chien": "/ʃjɛ̃/",
+            "Lion": "/ljɔ̃/", "Avion": "/a.vjɔ̃/", "Camion": "/ka.mjɔ̃/", "Ordinateur": "/ɔʁ.di.na.tɔʁ/", "Cœur": "/kɔʁ/",
+            "Pastèque": "/pas.tɛk/", "Banque": "/bɑ̃k/", "Montagne": "/mɔ̃.taɲ/", "Téléphone": "/te.le.fɔn/", "Sucette": "/sy.sɛt/",
+            "Feuille": "/fœj/", "Grenouille": "/ɡʁə.nuj/", "Soleil": "/sɔ.lɛj/", "Magasin": "/ma.ɡa.zɛ̃/", "Singe": "/sɛ̃ʒ/",
+            "Oiseau": "/wa.zo/", "Fraise": "/fʁɛz/", "Cerise": "/sə.ʁiz/", "Glace": "/ɡlas/", "Taxi": "/tak.si/", "Maison": "/mɛ.zɔ̃/",
+            "Rose": "/ʁoz/", "Herbe": "/ɛʁb/", "Plage": "/plaʒ/", "Raisin": "/ʁɛ.zɛ̃/", "Ciseaux": "/si.zo/"
+        };
+
+        // DÉCOUPAGE SYLLABIQUE
+        const syllabicSplit = {
+            "Renard": ["Re", "nard"], "Canard": ["Ca", "nard"], "Banane": ["Ba", "na", "ne"], "Ananas": ["A", "na", "nas"],
+            "Chaussure": ["Chau", "ssu", "re"], "Gâteau": ["Gá", "teau"], "Bateau": ["Ba", "teau"], "Marteau": ["Mar", "teau"],
+            "Souris": ["Sou", "ris"], "Tournesol": ["Tour", "ne", "sol"], "Ampoule": ["Am", "poule"], "Bougie": ["Bou", "gie"],
+            "Cochon": ["Co", "chon"], "Melon": ["Me", "lon"], "Citron": ["Ci", "tron"], "Bonbon": ["Bon", "bon"],
+            "Voiture": ["Voi", "ture"], "Panda": ["Pan", "da"], "Mandarine": ["Man", "da", "ri", "ne"], "Lampe": ["Lam", "pe"],
+            "Pêche": ["Pê", "che"], "Palmier": ["Pal", "mi", "er"], "Voilier": ["Voi", "li", "er"],
+            "Lapin": ["La", "pin"], "Poussin": ["Pou", "ssin"], "Sapin": ["Sa", "pin"], "Train": ["Train"],
+            "Chien": ["Chien"], "Lion": ["Li", "on"], "Avion": ["A", "vi", "on"], "Camion": ["Ca", "mi", "on"],
+            "Ordinateur": ["Or", "di", "na", "teur"], "Cœur": ["Cœur"], "Pastèque": ["Pas", "tè", "que"],
+            "Banque": ["Ban", "que"], "Montagne": ["Mon", "ta", "gne"], "Téléphone": ["Té", "lé", "pho", "ne"],
+            "Sucette": ["Su", "cette"], "Feuille": ["Feuille"], "Grenouille": ["Gre", "nouille"], "Soleil": ["So", "leil"],
+            "Magasin": ["Ma", "ga", "sin"], "Singe": ["Sin", "ge"], "Oiseau": ["Oi", "seau"],
+            "Fraise": ["Frai", "se"], "Cerise": ["Ce", "ri", "se"], "Glace": ["Glace"], "Taxi": ["Ta", "xi"],
+            "Maison": ["Mai", "son"], "Rose": ["Ro", "se"], "Herbe": ["Her", "be"], "Plage": ["Plage"],
+            "Raisin": ["Rai", "sin"], "Ciseaux": ["Ci", "seaux"]
+        };
+
+        // LETTRES MUETTES (UNIQUEMENT gestion manuelle)
+        const muteLettersList = [
+            "Chat(4)", "Renard(6)", "Tigre(0)", "Vache(0)", "Canard(6)",
+            "Pomme(0)", "Banane(0)", "Ananas(0)", "Carotte(0)", "Tomate(0)",
+            "Maïs(0)", "Brocoli(0)", "Pizza(0)", "Frites(6)", "Pâtes(5)",
+            "Biscuit(7)", "Chocolat(8)", "Café(0)", "Thé(2)", "Bus(0)",
+            "Métro(0)", "Vélo(0)", "Arbre(0)", "Cactus(0)", "Tulipe(0)",
+            "Parc(0)", "École(0)", "Hôpital(1)", "Clé(0)", "Radio(0)",
+            "Sac(0)", "Lune(0)", "Hélico(1)",
+            "Chaussure(0)",
+            "Gâteau(0)", "Bateau(0)", "Marteau(0)",
+            "Souris(6)", "Ours(0)", "Tournesol(0)", "Ampoule(0)", "Bougie(6)",
+            "Cochon(0)", "Melon(0)", "Citron(0)", "Bonbon(0)",
+            "Voiture(0)", "Étoile(0)",
+            "Panda(0)", "Mandarine(0)",
+            "Lampe(0)",
+            "Aigle(0)",
+            "Pêche(0)",
+            "Palmier(0)", "Voilier(0)",
+            "Lapin(0)", "Poussin(0)", "Sapin(0)",
+            "Train(0)",
+            "Chien(0)",
+            "Lion(0)", "Avion(0)", "Camion(0)",
+            "Ordinateur(0)",
+            "Cœur(0)",
+            "Pastèque(0)", "Banque(0)",
+            "Montagne(0)",
+            "Téléphone(0)",
+            "Sucette(0)",
+            "Feuille(0)", "Grenouille(0)", "Soleil(0)",
+            "Magasin(0)", "Singe(0)", "Oiseau(0)", "Fraise(0)", "Cerise(0)",
+            "Glace(0)", "Taxi(0)", "Maison(0)", "Rose(0)", "Herbe(1)",
+            "Plage(0)", "Raisin(0)", "Ciseaux(7)"
+        ];
+
+        // Génération de muteLettersMap (UNIQUEMENT manuel)
+        const muteLettersMap = {};
+        muteLettersList.forEach(entry => {
+            const match = entry.match(/^([^(]+)\(([^)]+)\)$/);
+            if (match) {
+                const word = match[1];
+                const positionsStr = match[2];
+                if (positionsStr === '0') {
+                    muteLettersMap[word] = [];
+                } else {
+                    const positions = positionsStr.split(',').map(p => parseInt(p) - 1);
+                    muteLettersMap[word] = positions;
+                }
+            }
+        });
+
+        // VARIABLES
+        let coloringEnabled = true;
+        let currentWordIndex = 0;
+        let score = 0;
+        let questionStartTime = 0;
+        const totalQuestions = 10;
+        const maxScore = 100;
+        let currentWordData = null;
+        let usedWords = [];
+        let currentWords = [];
+
+        // FONCTION : COLORIER LE MOT AVEC LES COULEURS DES PHONÈMES
+        function colorizeWord(word) {
+    if (!coloringEnabled) return word;
+
+    // Exceptions : "om" dans "Pomme" et "Tomate" n'est PAS le son nasal ɔ̃ (rouge)
+    const OM_EXCEPTIONS = new Set(["Pomme", "Tomate"]);
+
+    const letters = word.split('');
+    const colors = new Array(letters.length).fill(null);
+    const wordLower = word.toLowerCase();
+
+    const graphemePatterns = [];
+    for (const [grapheme, phoneme] of Object.entries(GRAPHEME_TO_PHONEME)) {
+        graphemePatterns.push({ pattern: grapheme, phoneme: phoneme, length: grapheme.length });
+    }
+    graphemePatterns.sort((a, b) => b.length - a.length);
+
+    const syllables = syllabicSplit[word] || [];
+
+    if (syllables.length > 0) {
+        let currentPos = 0;
+        for (const syllable of syllables) {
+            const syllableLower = syllable.toLowerCase();
+            const syllableStart = word.indexOf(syllable, currentPos);
+            if (syllableStart === -1) { currentPos++; continue; }
+
+            for (const { pattern, phoneme } of graphemePatterns) {
+                const patternLower = pattern.toLowerCase();
+                const patternLen = pattern.length;
+                for (let i = 0; i <= syllableLower.length - patternLen; i++) {
+                    if (syllableLower.substr(i, patternLen) === patternLower) {
+                        // ✅ NOUVEAU : On saute si c'est "om" dans Pomme/Tomate
+                        if (pattern === 'om' && OM_EXCEPTIONS.has(word)) continue;
+
+                        const absoluteStart = syllableStart + i;
+                        const absoluteEnd = absoluteStart + patternLen;
+                        let canColor = true;
+                        for (let j = absoluteStart; j < absoluteEnd; j++) {
+                            if (colors[j] !== null) { canColor = false; break; }
+                        }
+                        if (canColor) {
+                            const color = PHONEMIC_COLORS[phoneme];
+                            if (color) {
+                                for (let j = absoluteStart; j < absoluteEnd; j++) {
+                                    colors[j] = color;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            currentPos = syllableStart + syllable.length;
+        }
+    } else {
+        for (const { pattern, phoneme } of graphemePatterns) {
+            const patternLower = pattern.toLowerCase();
+            const patternLen = pattern.length;
+            for (let i = 0; i <= wordLower.length - patternLen; i++) {
+                if (wordLower.substr(i, patternLen) === patternLower) {
+                    // ✅ NOUVEAU : On saute si c'est "om" dans Pomme/Tomate
+                    if (pattern === 'om' && OM_EXCEPTIONS.has(word)) continue;
+
+                    let allUncolored = true;
+                    for (let j = i; j < i + patternLen; j++) {
+                        if (colors[j] !== null) { allUncolored = false; break; }
+                    }
+                    if (allUncolored) {
+                        const color = PHONEMIC_COLORS[phoneme];
+                        if (color) {
+                            for (let j = i; j < i + patternLen; j++) {
+                                colors[j] = color;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Colorier les lettres muettes
+    if (muteLettersMap[word]) {
+        muteLettersMap[word].forEach(index => {
+            if (index < letters.length) {
+                colors[index] = '#adb5bd';
+            }
+        });
+    }
+
+    let html = '';
+    for (let i = 0; i < letters.length; i++) {
+        if (colors[i] !== null) {
+            const isMute = colors[i] === '#adb5bd';
+            const opacity = isMute ? '0.7' : '1';
+            const weight = isMute ? '400' : '700';
+            html += `<span style="color: ${colors[i]}; font-weight: ${weight}; opacity: ${opacity};">${letters[i]}</span>`;
+        } else {
+            html += letters[i];
+        }
+    }
+    return html;
+}
+
+        function getPhoneticText(phonetic) { return phonetic || ''; }
+
+        // INITIALISATION
+        function initializeGame() {
+            const select = document.getElementById('graphème-select');
+            graphèmeOrder.forEach((graphème, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = graphème;
+                select.appendChild(option);
+            });
+            const allOption = document.createElement('option');
+            allOption.value = graphèmeOrder.length - 1;
+            allOption.textContent = "Tous les graphèmes";
+            select.appendChild(allOption);
+            updateWordCount();
+            select.addEventListener('change', updateWordCount);
+        }
+
+        function updateWordCount() {
+            const selectedIndex = parseInt(document.getElementById('graphème-select').value);
+            let filtered = selectedIndex === -1 ? [...wordsForCP] :
+                wordsForCP.filter(w => w.level === -1 || (w.level <= selectedIndex && w.level < MAX_LEVEL) ||
+                    (selectedIndex === graphèmeOrder.length - 1 && w.level === MAX_LEVEL));
+            document.getElementById('word-count').textContent = `Mots disponibles: ${filtered.length}`;
+        }
+
+        // MODALE DES NIVEAUX
+        function showLevelsModal() {
+            const modal = document.getElementById('levels-modal');
+            const list = document.getElementById('levels-list');
+            let html = '<table class="levels-table"><tr><th>Mot</th><th>Emoji</th><th>Niveau</th><th>Graphème</th><th>Phonétique</th></tr>';
+            wordsForCP.forEach(word => {
+                const level = word.level === -1 ? '-' : word.level;
+                const graphème = word.level === -1 ? 'Aucun' : (word.level >= graphèmeOrder.length ? 'Max' : graphèmeOrder[word.level]);
+                const displayedWord = colorizeWord(word.word);
+                const phonetic = getPhoneticText(phoneticTranscriptions[word.word] || '');
+                html += `<tr><td>${displayedWord}</td><td>${word.emoji}</td><td>${level}</td><td>${graphème}</td><td>${phonetic || '-'}</td></tr>`;
+            });
+            html += '</table>';
+            list.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        // LOGIQUE DU JEU
+        function startGame() {
+            const selectedIndex = parseInt(document.getElementById('graphème-select').value);
+            currentWords = selectedIndex === -1 ? [...wordsForCP] :
+                wordsForCP.filter(w => w.level === -1 || (w.level <= selectedIndex && w.level < MAX_LEVEL) ||
+                    (selectedIndex === graphèmeOrder.length - 1 && w.level === MAX_LEVEL));
+            if (currentWords.length < 10) currentWords = [...wordsForCP];
+            currentWordIndex = 0; score = 0; usedWords = [];
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('score-screen').style.display = 'none';
+            document.getElementById('feedback').textContent = '';
+            askQuestion();
+        }
+
+        function askQuestion() {
+            if (currentWordIndex >= totalQuestions) { endGame(); return; }
+            questionStartTime = Date.now();
+            let availableWords = currentWords.filter(w => !usedWords.includes(w.word));
+            if (availableWords.length === 0) usedWords = [];
+            const shuffled = [...availableWords].sort(() => 0.5 - Math.random());
+            currentWordData = shuffled[0];
+            usedWords.push(currentWordData.word);
+            document.getElementById('word').innerHTML = colorizeWord(currentWordData.word);
+            const phonetic = [] || '';
+            document.getElementById('phonetic-display').textContent = phonetic;
+            document.getElementById('phonetic-display').style.display = 'block';
+            const others = availableWords.filter(w => w.emoji !== currentWordData.emoji);
+            const distractors = [];
+            for (let i = 0; i < 2 && i < others.length; i++) {
+                distractors.push(others[Math.floor(Math.random() * others.length)]);
+            }
+            const options = [currentWordData, ...distractors].sort(() => 0.5 - Math.random());
+            const container = document.getElementById('emoji-options');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'emoji-option';
+                div.textContent = opt.emoji;
+                div.addEventListener('click', (e) => checkAnswer(opt.emoji, e));
+                container.appendChild(div);
+            });
+            document.getElementById('question-counter').textContent = `Question ${currentWordIndex + 1}/${totalQuestions}`;
+        }
+
+        function checkAnswer(selectedEmoji, event) {
+            const elapsed = (Date.now() - questionStartTime) / 1000;
+            const correct = selectedEmoji === currentWordData.emoji;
+            let points = 0;
+            if (correct) {
+                points = Math.max(1, 10 - (elapsed * 1.11));
+                score += Math.round(points);
+                event.target.classList.add('correct');
+                document.getElementById('feedback').textContent = `✅ +${Math.round(points)} pts !`;
+                document.getElementById('feedback').style.color = '#198754';
+            } else {
+                event.target.classList.add('incorrect');
+                document.getElementById('feedback').textContent = '❌ Réessaye !';
+                document.getElementById('feedback').style.color = '#dc3545';
+            }
+            currentWordIndex++;
+            setTimeout(() => {
+                document.querySelectorAll('.emoji-option').forEach(el => {
+                    el.classList.remove('correct', 'incorrect');
+                });
+                document.getElementById('feedback').textContent = '';
+                askQuestion();
+            }, 800);
+        }
+
+        function endGame() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('score-screen').style.display = 'block';
+            score = Math.min(score, maxScore);
+            document.getElementById('score').textContent = `Score: ${Math.round(score)}/${maxScore}`;
+            const bar = document.getElementById('progress-bar');
+            bar.style.width = `${score}%`;
+            if (score >= 80) {
+                bar.style.background = 'linear-gradient(90deg, #198754, #157347)';
+                document.getElementById('score').textContent += " 🌟 Super !";
+            } else if (score >= 50) {
+                bar.style.background = 'linear-gradient(90deg, #ffc107, #e0a800)';
+                document.getElementById('score').textContent += " 👍 Bien joué !";
+            } else {
+                bar.style.background = 'linear-gradient(90deg, #dc3545, #bb2d3b)';
+                document.getElementById('score').textContent += " 💪 Continue !";
+            }
+        }
+
+        function returnToSetup() {
+            document.getElementById('setup-screen').style.display = 'block';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('score-screen').style.display = 'none';
+        }
+
+        // ÉCOUTEURS
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+            const toggleBtn = document.getElementById('toggle-coloring');
+            toggleBtn.addEventListener('click', () => {
+                coloringEnabled = !coloringEnabled;
+                toggleBtn.classList.toggle('active', coloringEnabled);
+                toggleBtn.querySelector('span').textContent = coloringEnabled ? 'Coloration ACTIVE' : 'Coloration désactivée';
+            });
+            document.getElementById('start-game-btn').addEventListener('click', startGame);
+            document.getElementById('restart-btn').addEventListener('click', returnToSetup);
+            document.getElementById('check-levels-btn').addEventListener('click', showLevelsModal);
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.getElementById('levels-modal').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎲 Décomposition des Nombres (UHD)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #ff9e40;
+            --success: #4caf50;
+            --error: #f44336;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #333333;
+            --gold: #FFD700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .container {
+            background-color: var(--card);
+            border-radius: 30px;
+            padding: 60px;
+            width: 80%;
+            max-width: 1600px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 4rem;
+            margin-bottom: 40px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            height: 20px;
+            margin: 40px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+
+        .decomposition-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 60px 0;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(74, 144, 226, 0.1);
+            padding: 40px;
+            border-radius: 25px;
+            border: 3px dashed var(--primary);
+        }
+
+        .visual-representation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .ten-box {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ten-box::before {
+            content: "📦";
+            font-size: 6rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ten-box span {
+            position: absolute;
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px white;
+        }
+
+        .unit-bead {
+            background-color: white;
+            color: var(--secondary);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 3px solid var(--secondary);
+        }
+
+        .unit-bead::before {
+            content: "⚪";
+            font-size: 3rem;
+        }
+
+        .controls {
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .propositions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 60px 0;
+            flex-wrap: wrap;
+        }
+
+        .proposition-btn {
+            padding: 15px 25px;
+            font-size: 1.8rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            min-width: 80px;
+            min-height: 80px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .proposition-btn:hover {
+            background-color: #3a7bc8;
+            transform: scale(1.08);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .feedback {
+            font-size: 2.5rem;
+            margin: 40px 0;
+            font-weight: 600;
+            min-height: 60px;
+        }
+
+        .score-display {
+            font-size: 2rem;
+            margin: 20px 0;
+            color: var(--secondary);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Animation des étoiles de récompense */
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            color: var(--gold);
+            font-size: 3rem;
+            opacity: 0;
+            animation: fall 2.5s linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -30px;
+                opacity: 0;
+                transform: rotate(0deg);
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                top: 110%;
+                opacity: 0;
+                transform: rotate(720deg);
+            }
+        }
+
+        @media (max-width: 2560px) {
+            .container {
+                width: 90%;
+            }
+            .ten-box {
+                width: 100px;
+                height: 100px;
+            }
+            .ten-box::before {
+                font-size: 5rem;
+            }
+            .ten-box span {
+                font-size: 2rem;
+            }
+            .unit-bead {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Décomposition des Nombres</h1>
+
+        <div class="score-display">Score : <span id="score">0</span>/5</div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div class="decomposition-display" id="decomposition-display">
+            <div class="visual-representation" id="visual-representation"></div>
+            <div id="decomposition-text"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="generate-btn">Nouvelle partie</button>
+        </div>
+
+        <div class="propositions" id="propositions">
+            <!-- Les propositions seront affichées ici -->
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <!-- Conteneur pour les étoiles de récompense -->
+        <div class="stars-container" id="stars-container"></div>
+    </div>
+
+    <script>
+        // Variables globales
+        const decompositionDisplay = document.getElementById("decomposition-display");
+        const visualRepresentation = document.getElementById("visual-representation");
+        const decompositionText = document.getElementById("decomposition-text");
+        const generateBtn = document.getElementById("generate-btn");
+        const propositionsDiv = document.getElementById("propositions");
+        const feedbackDiv = document.getElementById("feedback");
+        const scoreDisplay = document.querySelector(".score-display span");
+        const progressBar = document.getElementById("progress-bar");
+        const starsContainer = document.getElementById("stars-container");
+
+        let score = 0;
+        let currentQuestion = 0;
+        let correctNumber = 0;
+        let currentDecomposition = "";
+        let usedDecompositionTypes = [];
+        const maxQuestions = 5;
+
+        // Types de décompositions autorisées
+        const decompositionTypes = [
+            // 1. Forme standard (40+5) - texte seulement
+            { type: "standard", format: (tens, units) => {
+                return {
+                    text: `${tens * 10}+${units}`,
+                    isVisual: false
+                };
+            }},
+
+            // 2. Forme inversée (5+40) - texte seulement
+            { type: "reversed", format: (tens, units) => {
+                return {
+                    text: `${units}+${tens * 10}`,
+                    isVisual: false
+                };
+            }},
+
+            // 3. Addition de dizaines + unités (10+10+10+10+5) - avec cartons 📦 et perles ⚪
+            { type: "tens-addition", format: (tens, units) => {
+                return {
+                    text: Array(tens).fill("10").join("+") + (units > 0 ? "+" + units : ""),
+                    isVisual: true
+                };
+            }},
+
+            // 4. Notation dizaines/unités (4d5u ou 5u4d) - texte seulement
+            { type: "du-notation", format: (tens, units) => {
+                const notation = Math.random() > 0.5 ? `${tens}d${units}u` : `${units}u${tens}d`;
+                return {
+                    text: notation,
+                    isVisual: false
+                };
+            }},
+
+            // 5. Addition avec unités réparties (10+5+10+10) - texte seulement
+            { type: "mixed-addition", format: (tens, units) => {
+                const parts = [];
+                for (let i = 0; i < Math.floor(tens/2); i++) parts.push("10");
+                if (units > 0) parts.push(units);
+                for (let i = 0; i < Math.ceil(tens/2); i++) parts.push("10");
+                return {
+                    text: parts.join("+"),
+                    isVisual: false
+                };
+            }}
+        ];
+
+        // Crée une représentation visuelle des cartons 📦 et perles ⚪
+        function createVisualRepresentation(tens, units) {
+            const container = document.createElement("div");
+            container.style.display = "flex";
+            container.style.justifyContent = "center";
+            container.style.alignItems = "center";
+            container.style.gap = "20px";
+            container.style.flexWrap = "wrap";
+
+            // Ajoute les cartons de 10 (📦 avec "10" par-dessus)
+            for (let i = 0; i < tens; i++) {
+                const box = document.createElement("div");
+                box.className = "ten-box";
+                box.innerHTML = `<span>10</span>`;
+                container.appendChild(box);
+            }
+
+            // Ajoute les perles pour les unités (⚪)
+            for (let i = 0; i < units; i++) {
+                const bead = document.createElement("div");
+                bead.className = "unit-bead";
+                container.appendChild(bead);
+            }
+
+            return container;
+        }
+
+        // Affiche une animation d'étoiles dorées
+        function showStarsAnimation() {
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 20; i++) {  // Plus d'étoiles pour UHD
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                star.textContent = '⭐';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Démarre une nouvelle partie
+        function startNewGame() {
+            score = 0;
+            currentQuestion = 0;
+            usedDecompositionTypes = [];
+            scoreDisplay.textContent = score;
+            progressBar.style.width = "0%";
+            feedbackDiv.textContent = "";
+            starsContainer.innerHTML = "";
+            generateQuestion();
+        }
+
+        // Génère une nouvelle question
+        function generateQuestion() {
+            if (currentQuestion >= maxQuestions) {
+                endGame();
+                return;
+            }
+
+            // Génère un nombre aléatoire entre 10 et 99
+            correctNumber = Math.floor(Math.random() * 90) + 10;
+            const tens = Math.floor(correctNumber / 10);
+            const units = correctNumber % 10;
+
+            // Sélectionne un type de décomposition non encore utilisé
+            let availableTypes = decompositionTypes.filter(type => !usedDecompositionTypes.includes(type.type));
+            if (availableTypes.length === 0) availableTypes = [...decompositionTypes];
+
+            const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+            usedDecompositionTypes.push(selectedType.type);
+
+            const decomposition = selectedType.format(tens, units);
+            currentDecomposition = decomposition.text;
+
+            // Affiche soit la représentation visuelle (📦 et ⚪), soit le texte
+            decompositionText.textContent = "";
+            visualRepresentation.innerHTML = "";
+
+            if (decomposition.isVisual) {
+                visualRepresentation.appendChild(createVisualRepresentation(tens, units));
+            } else {
+                decompositionText.textContent = currentDecomposition;
+            }
+
+            // Génère 5 propositions incluant OBLIGATOIREMENT la bonne réponse
+            generatePropositions();
+        }
+
+        // Génère 5 propositions de réponses (avec la bonne réponse OBLIGATOIREMENT incluse)
+        function generatePropositions() {
+            const propositions = [correctNumber]; // La bonne réponse est TOUJOURS incluse
+
+            // Génère 4 autres propositions uniques
+            while (propositions.length < 5) {
+                const randomNumber = Math.floor(Math.random() * 90) + 10;
+                if (!propositions.includes(randomNumber)) {
+                    propositions.push(randomNumber);
+                }
+            }
+
+            // Mélange les propositions
+            propositions.sort(() => Math.random() - 0.5);
+
+            // Affiche les propositions (en chiffres)
+            propositionsDiv.innerHTML = "";
+            propositions.forEach(number => {
+                const btn = document.createElement("button");
+                btn.className = "proposition-btn";
+                btn.textContent = number;
+                btn.addEventListener("click", () => checkAnswer(number));
+                propositionsDiv.appendChild(btn);
+            });
+        }
+
+        // Vérifie la réponse
+        function checkAnswer(selectedNumber) {
+            if (selectedNumber === correctNumber) {
+                score++;
+                currentQuestion++;
+                scoreDisplay.textContent = score;
+                feedbackDiv.textContent = `✅ Bravo ! ${currentDecomposition} = ${correctNumber}`;
+                feedbackDiv.style.color = "var(--success)";
+
+                // Met à jour la barre de progression
+                const progress = (score / maxQuestions) * 100;
+                progressBar.style.width = `${progress}%`;
+
+                // Passe à la question suivante
+                setTimeout(generateQuestion, 1500);
+            } else {
+                feedbackDiv.textContent = `❌ Non, ${currentDecomposition} = ${correctNumber}.`;
+                feedbackDiv.style.color = "var(--error)";
+            }
+        }
+
+        // Fin du jeu avec animation de récompense
+        function endGame() {
+            feedbackDiv.textContent = `🎉 Félicitations !`;
+            feedbackDiv.style.color = "var(--success)";
+
+            // Affiche l'animation d'étoiles
+            showStarsAnimation();
+
+            // Change le texte du bouton
+            generateBtn.textContent = "Rejouer";
+        }
+
+        // Événements
+        generateBtn.addEventListener("click", startNewGame);
+
+        // Démarre une nouvelle partie
+        startNewGame();
+    </script>
+</body>
+</html>

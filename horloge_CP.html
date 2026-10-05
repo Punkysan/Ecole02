@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Horloge de Paris</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .clock-wrapper {
+            position: relative;
+            width: 88vmin;
+            height: 88vmin;
+            max-width: 580px;
+            max-height: 580px;
+            margin: 1vmin auto;
+            border-radius: 50%;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3),
+                        inset 0 -6px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #analogClock {
+            display: block;
+        }
+
+        .digital-clock {
+            font-size: 8vmin;
+            font-weight: bold;
+            margin: 1.5vmin 0;
+            min-height: 6vmin;
+            text-align: center;
+            background: rgba(255,255,255,0.8);
+            padding: 1vmin 2vmin;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clock-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .controls {
+            position: absolute;
+            right: 1vmin;
+            bottom: 1vmin;
+            display: flex;
+            flex-direction: row;
+            gap: 2vmin;
+            margin: 0;
+        }
+        
+        .controls > div {
+            display: flex;
+            flex-direction: column;
+            gap: 1vmin;
+            align-items: flex-end;
+        }
+
+        button {
+            padding: 0;
+            font-size: 4vmin;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            width: 10vmin;
+            height: 10vmin;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .needle-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        .needle-btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+        }
+
+        .needle-btn.second {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        .needle-btn.second:hover {
+            background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+        }
+
+        .needle-btn.minute {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        .needle-btn.minute:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+        }
+
+        .needle-btn.hour {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .needle-btn.hour:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #922b21 100%);
+        }
+
+        button.active {
+            box-shadow: inset 0 0 0 2px white, 0 3px 8px rgba(0,0,0,0.3);
+        }
+
+        #toggleLive, #toggleDigital, #toggleMinuteMarks {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        #toggleLive:hover, #toggleDigital:hover, #toggleMinuteMarks:hover {
+            background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+        }
+
+        .manual-mode-info {
+            color: #e74c3c;
+            font-size: 1.8vmin;
+            font-weight: bold;
+            margin-top: -0.5vmin;
+            margin-bottom: 1.5vmin;
+            text-align: center;
+        }
+
+        .manual-mode-info.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="clock-wrapper">
+            <canvas id="analogClock"></canvas>
+        </div>
+
+        <div class="digital-clock" id="digitalClock"></div>
+        <div class="manual-mode-info" id="manualModeInfo">
+            Cliquez sur le cadran pour définir l'heure
+        </div>
+    </div>
+
+    <div class="controls">
+        <div>
+            <button class="needle-btn hour" id="toggleHour">H</button>
+            <button class="needle-btn minute" id="toggleMinute">M</button>
+            <button class="needle-btn second" id="toggleSecond">S</button>
+        </div>
+        
+        <div>
+            <button id="toggleLive">⏸️</button>
+            <button id="toggleDigital">🕛</button>
+            <button id="toggleMinuteMarks">📏</button>
+        </div>
+    </div>
+
+    <script>
+        // État de l'application
+        const state = {
+            isLive: true,
+            showSecond: true,
+            showMinute: true,
+            showHour: true,
+            showDigital: true,
+            showMinuteMarks: true,
+            manualHour: null
+        };
+
+        // Éléments DOM
+        const analogClock = document.getElementById('analogClock');
+        const digitalClock = document.getElementById('digitalClock');
+        const toggleLiveBtn = document.getElementById('toggleLive');
+        const toggleDigitalBtn = document.getElementById('toggleDigital');
+        const toggleSecondBtn = document.getElementById('toggleSecond');
+        const toggleMinuteBtn = document.getElementById('toggleMinute');
+        const toggleHourBtn = document.getElementById('toggleHour');
+        const toggleMinuteMarksBtn = document.getElementById('toggleMinuteMarks');
+        const manualModeInfo = document.getElementById('manualModeInfo');
+
+        // Contexte du canvas
+        const ctx = analogClock.getContext('2d');
+        let centerX, centerY, radius;
+
+        // Couleurs
+        const colors = {
+            hour: '#e74c3c',
+            minute: '#3498db',
+            second: '#2ecc71',
+            background: '#ffffff',
+            border: '#2c3e50',
+            text: '#2c3e50',
+            mark: '#555555'
+        };
+
+        // Initialisation
+        function init() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            setupEventListeners();
+            updateClock();
+            setInterval(updateClock, 1000);
+            updateButtonStates();
+        }
+
+        // Redimensionner le canvas
+        function resizeCanvas() {
+            const wrapper = analogClock.parentElement;
+            const size = Math.min(wrapper.clientWidth, wrapper.clientHeight);
+            analogClock.width = size;
+            analogClock.height = size;
+            analogClock.style.width = size + 'px';
+            analogClock.style.height = size + 'px';
+            
+            centerX = size / 2;
+            centerY = size / 2;
+            radius = centerX - 7;  // Agrandi un peu
+        }
+
+        // Configurer les gestionnaires d'événements
+        function setupEventListeners() {
+            toggleLiveBtn.addEventListener('click', () => {
+                state.isLive = !state.isLive;
+                if (state.isLive) {
+                    state.manualHour = null;
+                }
+                updateButtonStates();
+                updateClock();
+            });
+
+            toggleDigitalBtn.addEventListener('click', () => {
+                state.showDigital = !state.showDigital;
+                digitalClock.style.display = state.showDigital ? 'flex' : 'none';
+                updateButtonStates();
+            });
+
+            toggleSecondBtn.addEventListener('click', () => {
+                state.showSecond = !state.showSecond;
+                updateButtonStates();
+                updateClock();
+            });
+
+            toggleMinuteBtn.addEventListener('click', () => {
+                state.showMinute = !state.showMinute;
+                updateButtonStates();
+                updateClock();
+            });
+
+            toggleHourBtn.addEventListener('click', () => {
+                state.showHour = !state.showHour;
+                updateButtonStates();
+                updateClock();
+            });
+
+            toggleMinuteMarksBtn.addEventListener('click', () => {
+                state.showMinuteMarks = !state.showMinuteMarks;
+                updateButtonStates();
+                updateClock();
+            });
+
+            analogClock.addEventListener('click', (e) => {
+                if (!state.isLive) {
+                    const rect = analogClock.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const clickY = e.clientY - rect.top;
+                    
+                    const angle = getClickAngle(clickX, clickY);
+                    const hour = getHourFromAngle(angle);
+                    
+                    state.manualHour = hour;
+                    updateClock();
+                }
+            });
+        }
+
+        function getClickAngle(x, y) {
+            const dx = x - centerX;
+            const dy = y - centerY;
+            let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            if (angle < 0) angle += 360;
+            return angle;
+        }
+
+        function getHourFromAngle(angle) {
+            let hour = Math.floor((angle + 105) / 30) % 12;
+            return hour === 0 ? 12 : hour;
+        }
+
+        function updateButtonStates() {
+            toggleSecondBtn.textContent = 'S';
+            toggleMinuteBtn.textContent = 'M';
+            toggleHourBtn.textContent = 'H';
+            
+            toggleSecondBtn.classList.toggle('active', !state.showSecond);
+            toggleMinuteBtn.classList.toggle('active', !state.showMinute);
+            toggleHourBtn.classList.toggle('active', !state.showHour);
+            
+            toggleLiveBtn.textContent = state.isLive ? '⏸️' : '▶️';
+            toggleDigitalBtn.textContent = state.showDigital ? '📟' : '❌';
+            toggleMinuteMarksBtn.textContent = state.showMinuteMarks ? '📏' : '❌';
+            
+            manualModeInfo.classList.toggle('hidden', state.isLive);
+        }
+
+        function drawAnalogClock() {
+            ctx.clearRect(0, 0, analogClock.width, analogClock.height);
+
+            // Dessiner la bordure grise (cercle extérieur)
+            ctx.strokeStyle = colors.border;
+            ctx.lineWidth = 12;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, centerX, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Dessiner le fond blanc (cercle intérieur)
+            ctx.fillStyle = colors.background;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Dessiner les aiguilles AVANT les chiffres pour qu'elles passent dessous
+            let hours, minutes, seconds;
+            if (state.isLive) {
+                const now = new Date();
+                hours = now.getHours() % 12;
+                minutes = now.getMinutes();
+                seconds = now.getSeconds();
+            } else {
+                hours = (state.manualHour || 12) % 12;
+                minutes = 0;
+                seconds = 0;
+            }
+
+            if (state.showHour) {
+                const hourAngle = (hours * 30 + minutes * 0.5) * Math.PI / 180 - Math.PI / 2;
+                drawNeedle(hourAngle, radius * 0.5, radius * 0.05, colors.hour);
+            }
+
+            if (state.showMinute) {
+                const minuteAngle = (minutes * 6) * Math.PI / 180 - Math.PI / 2;
+                drawNeedle(minuteAngle, radius * 0.7, radius * 0.035, colors.minute);
+            }
+
+            if (state.showSecond) {
+                const secondAngle = (seconds * 6) * Math.PI / 180 - Math.PI / 2;
+                drawNeedle(secondAngle, radius * 0.85, radius * 0.015, colors.second);
+            }
+
+            // Grands traits (heures) - Près du bord
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30) * Math.PI / 180 - Math.PI / 2;
+                const outerRadius = radius + 10;
+                const innerRadius = radius - radius * 0.14;
+                
+                ctx.strokeStyle = colors.mark;
+                ctx.lineWidth = radius * 0.025;
+                ctx.beginPath();
+                ctx.moveTo(
+                    centerX + Math.cos(angle) * innerRadius,
+                    centerY + Math.sin(angle) * innerRadius
+                );
+                ctx.lineTo(
+                    centerX + Math.cos(angle) * outerRadius,
+                    centerY + Math.sin(angle) * outerRadius
+                );
+                ctx.stroke();
+
+                // Dessiner les chiffres (par-dessus les aiguilles)
+                ctx.fillStyle = colors.text;
+                ctx.font = `bold ${radius * 0.2}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const textRadius = radius - radius * 0.27;
+                const hour = i === 0 ? 12 : i;
+                const textX = centerX + Math.cos(angle) * textRadius;
+                const textY = centerY + Math.sin(angle) * textRadius;
+                ctx.fillText(hour.toString(), textX, textY);
+            }
+
+            // Petits traits (minutes) - Près du bord
+            if (state.showMinuteMarks) {
+                for (let i = 0; i < 60; i++) {
+                    if (i % 5 === 0) continue;
+                    
+                    const angle = (i * 6) * Math.PI / 180 - Math.PI / 2;
+                    const outerRadius = radius + 10;
+                    const innerRadius = radius - radius * 0.09;
+                    
+                    ctx.strokeStyle = colors.mark;
+                    ctx.lineWidth = radius * 0.01;
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        centerX + Math.cos(angle) * innerRadius,
+                        centerY + Math.sin(angle) * innerRadius
+                    );
+                    ctx.lineTo(
+                        centerX + Math.cos(angle) * outerRadius,
+                        centerY + Math.sin(angle) * outerRadius
+                    );
+                    ctx.stroke();
+                }
+            }
+
+            drawCenter();
+        }
+
+        function drawNeedle(angle, length, width, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(
+                centerX + Math.cos(angle) * length,
+                centerY + Math.sin(angle) * length
+            );
+            ctx.stroke();
+        }
+
+        function drawCenter() {
+            const centerSize = radius * 0.04;
+            
+            ctx.fillStyle = colors.border;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, centerSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ecf0f1';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, centerSize * 0.625, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = colors.border;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, centerSize * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function formatDigitalClock() {
+            let hours, minutes, seconds;
+            
+            if (state.isLive) {
+                const now = new Date();
+                hours = now.getHours();
+                minutes = now.getMinutes();
+                seconds = now.getSeconds();
+            } else {
+                hours = state.manualHour || 12;
+                minutes = 0;
+                seconds = 0;
+            }
+
+            hours = hours.toString().padStart(2, '0');
+            minutes = minutes.toString().padStart(2, '0');
+            seconds = seconds.toString().padStart(2, '0');
+
+            let html = '';
+            
+            if (state.showHour) {
+                html += `<span style="color: ${colors.hour}">${hours}</span>`;
+            }
+            if (state.showMinute) {
+                if (state.showHour) html += '<span style="color: #666">:</span>';
+                html += `<span style="color: ${colors.minute}">${minutes}</span>`;
+            }
+            if (state.showSecond) {
+                if (state.showHour || state.showMinute) html += '<span style="color: #666">:</span>';
+                html += `<span style="color: ${colors.second}">${seconds}</span>`;
+            }
+
+            if (!state.showHour && !state.showMinute && !state.showSecond) {
+                html = '<span style="color: #999">--:--:--</span>';
+            }
+
+            digitalClock.innerHTML = html;
+        }
+
+        function updateClock() {
+            drawAnalogClock();
+            if (state.showDigital) {
+                formatDigitalClock();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

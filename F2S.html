@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluence Automatique v3.0 - Validation INSTANTANÉE</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+            margin-bottom: 10px;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .text-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .text-level {
+            padding: 4px 8px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.1s;
+            font-weight: 600;
+        }
+        
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        button:not(:disabled):active { transform: scale(0.98); }
+        
+        #startBtn {
+            background-color: #28a745;
+            color: white;
+            flex: 1;
+        }
+        
+        #stopBtn {
+            background-color: #dc3545;
+            color: white;
+            flex: 1;
+            display: none;
+        }
+        
+        #resetBtn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .results {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .transcript-box {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            margin-top: 15px;
+        }
+        
+        .transcript-title {
+            font-weight: 600;
+            color: #2980b9;
+            margin-bottom: 8px;
+        }
+        
+        #transcript {
+            font-size: 1.1em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .status-recording {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-stopped {
+            background-color: #f8f9fa;
+            color: #7f8c8d;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .export-section {
+            margin-top: 20px;
+        }
+        
+        .export-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .history {
+            margin-top: 20px;
+        }
+        
+        .history-item {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #95a5a6;
+        }
+        
+        .history-date {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        #text-container {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-content: flex-start;
+            padding: 12px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            min-height: 60vh;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+        
+        .word {
+            padding: 8px 12px;
+            font-size: 1.3rem;
+            border-radius: 6px;
+            transition: all 0.1s ease;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            margin: 1px;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+        
+        .word.current {
+            background-color: #ffc107;
+            border-color: #ff9800;
+            animation: pulse 1s infinite;
+            color: #8d6e63;
+            font-weight: 600;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+        
+        .word.correct {
+            background-color: #28a745;
+            color: white;
+            border-color: #218838;
+        }
+        
+        .word.incorrect {
+            background-color: #dc3545;
+            color: white;
+            border-color: #c82333;
+        }
+        
+        #recognition-indicator {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #6c757d;
+            height: 18px;
+        }
+        
+        #recognition-indicator.active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        .progress-info {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #d1ecf1;
+            border-radius: 6px;
+            font-size: 0.95em;
+            color: #0c5460;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .progress-complete {
+            background-color: #d4edda !important;
+            color: #155724 !important;
+        }
+        
+        @media (max-width: 600px) {
+            .buttons {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
+            .word {
+                font-size: 1.1rem;
+                padding: 6px 10px;
+            }
+            #text-container {
+                min-height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Fluence Automatique v3.0</h1>
+        
+        <div id="recognition-indicator">Micro inactif</div>
+        
+        <div class="section">
+            <div class="section-title">Texte à lire</div>
+            <div class="text-selector">
+                <select id="textSelect" onchange="loadSelectedText()">
+                    <option value="">-- Sélectionner un texte --</option>
+                    <option value="0" data-level="Niveau 1 - Syllabes simples">Niveau 1 - Syllabes simples (AU/EAU, OU, ON/OM, OI)</option>
+                    <option value="1" data-level="Niveau 2 - Sons AI/EI/É/ET">Niveau 2 - Sons AI/EI/É/ET, ER/EZ/ES</option>
+                    <option value="2" data-level="Niveau 3 - Consonnes doubles">Niveau 3 - Consonnes doubles (FR/PR/BR/GR/CR/DR/VR)</option>
+                    <option value="3" data-level="Niveau 4 - Sons IN/IM/OIN">Niveau 4 - Sons IN/IM, OIN, AIN/EIN, EU/ÉU</option>
+                    <option value="4" data-level="Niveau 5 - Sons K/QU/GN">Niveau 5 - Sons K/QU, GN, PH</option>
+                    <option value="5" data-level="Niveau 6 - Sons G/J/C">Niveau 6 - Sons G soft/J + C/Ç/S, C/k</option>
+                    <option value="6" data-level="Niveau 7 - Terminaisons">Niveau 7 - Terminaisons (ES/ER/EC, ELLE/ETTE)</option>
+                    <option value="7" data-level="Niveau 8 - Sons complexes">Niveau 8 - Sons complexes (TION, W, X, UN/YN)</option>
+                </select>
+            </div>
+            <div id="textLevel" style="display: none;"></div>
+            <textarea id="sourceText" placeholder="Saisissez ou collez ici le texte que l'élève doit lire à voix haute..." oninput="loadText(this.value)"></textarea>
+        </div>
+        
+        <div id="text-container"></div>
+        
+        <div class="transcript-box">
+            <div class="transcript-title">🎙️ Texte interprété par l'application (pour test) :</div>
+            <p id="transcript"></p>
+        </div>
+        
+        <div id="progressInfo" class="progress-info" style="display: none;"></div>
+        
+        <div class="section">
+            <div class="section-title">Contrôle de la lecture</div>
+            <div class="buttons">
+                <button id="startBtn">🎤 Démarrer la lecture</button>
+                <button id="stopBtn" disabled>⏹ Arrêter</button>
+                <button id="resetBtn" disabled>🔄 Réinitialiser</button>
+            </div>
+            <div id="status" class="status status-stopped">Prêt à démarrer</div>
+            <p class="instructions">Cliquez sur un mot pour l'entendre. Le mot en JAUNE est à prononcer.</p>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">📊 Résultats</div>
+            <div class="results">
+                <div class="metric">
+                    <span class="metric-label">Durée :</span>
+                    <span class="metric-value" id="duration">0.0 s</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Mots validés :</span>
+                    <span class="metric-value" id="wordsCount">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Vitesse (mots/min) :</span>
+                    <span class="metric-value" id="wpm">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Précision :</span>
+                    <span class="metric-value" id="accuracy">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section export-section">
+            <div class="section-title">💾 Export</div>
+            <button class="export-btn" onclick="exportResults()">Exporter en JSON</button>
+            <button class="export-btn" onclick="copyResults()" style="background-color: #27ae60;">Copier les résultats</button>
+        </div>
+    </div>
+
+    <script>
+        const predefinedTexts = [
+            {
+                id: 0,
+                name: "Niveau 1 - Syllabes simples",
+                description: "AU/EAU, OU, ON/OM, OI",
+                text: "Pauline se coiffe avec son chapeau à pompons. Elle va près du pont pour voir des bateaux. Ils ont tous des voiles. Elle a pris avec elle son doudou. Elle dit : Regarde, Doudou, il y a des poissons au fond de l'eau !"
+            },
+            {
+                id: 1,
+                name: "Niveau 2 - Sons AI/EI/É/ET",
+                description: "ER/EZ/ES",
+                text: "C'est la fête au palais ! Il y a un bal. Mes amis dansent tous ensemble. Ils sont costumés. Il y a une fée, un pirate, un valet, un pompier et même un fou denté. Une reine m'embrasse, je l'emmène danser !"
+            },
+            {
+                id: 2,
+                name: "Niveau 3 - Consonnes doubles",
+                description: "FR/PR/BR/GR/CR/DR/VR, FL/PL/BL/CL/GL",
+                text: "La grosse chèvre blanche regarde à gauche et à droite. Vendredi, à la cantine, Frédéric prend un flan à la crème, un fruit et un petit suisse avec du sucre en poudre. Clotilde est triste, elle a perdu son cartable."
+            },
+            {
+                id: 3,
+                name: "Niveau 4 - Sons IN/IM/OIN",
+                description: "AIN/EIN, EU/ÉU",
+                text: "Martin est dans le train avec son copain, il est marin. Ils vont à Saint-Malo prendre leur bateau. Maintenant, ils ont faim. La sœur de Martin leur a préparé du pain avec du beurre et de la confiture."
+            },
+            {
+                id: 4,
+                name: "Niveau 5 - Sons K/QU/GN",
+                description: "PH",
+                text: "Dans un zoo, Katia prend en photo des animaux. Un koala, des éléphants, des phoques, des dauphins, des phacochères et même un crocodile ! Elle observe un vétérinaire qui soigne un éléphanteau tout mignon."
+            },
+            {
+                id: 5,
+                name: "Niveau 6 - Sons G/J/C",
+                description: "C/Ç/S, C/k",
+                text: "Dans le village, Giano joue de la guitare. Un petit singe est assis à ses côtés. Il porte de grosses bagues et un tatouage de dragon sur le cou. Il a un beau visage et de longs cheveux crépus. Il chante le voyage des gens heureux."
+            },
+            {
+                id: 6,
+                name: "Niveau 7 - Terminaisons",
+                description: "ES/ER/EC, ELLE/ETTE/ERRE/ESSE",
+                text: "Maya et Pierre piqueniquent sous les rayons du soleil. Ils mangent du pain, du gruyère puis un dessert. La jeune fille regarde un écureuil. Pierre cueille une brindille. Sous les feuilles, une grenouille a fait sa cachette."
+            },
+            {
+                id: 7,
+                name: "Niveau 8 - Sons complexes",
+                description: "TION, W, X, UN/YN/UM/YM",
+                text: "Lundi, William part en expédition avec une bicyclette exceptionnelle. Pour lui, c'est une préparation aux jeux Olympiques. Il faut dire que c'est un cycliste extraordinaire, il fait des acrobaties sensationnelles !"
+            }
+        ];
+
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const sourceText = document.getElementById('sourceText');
+        const transcriptEl = document.getElementById('transcript');
+        const statusEl = document.getElementById('status');
+        const durationEl = document.getElementById('duration');
+        const wordsCountEl = document.getElementById('wordsCount');
+        const wpmEl = document.getElementById('wpm');
+        const accuracyEl = document.getElementById('accuracy');
+        const historyList = document.getElementById('historyList');
+        const textSelect = document.getElementById('textSelect');
+        const textLevelEl = document.getElementById('textLevel');
+        const textContainer = document.getElementById('text-container');
+        const progressInfoEl = document.getElementById('progressInfo');
+        const recognitionIndicator = document.getElementById('recognition-indicator');
+
+        let recognition;
+        let startTime;
+        let endTime;
+        let isRecording = false;
+        let currentTranscript = '';
+        let testHistory = JSON.parse(localStorage.getItem('fluenceHistory')) || [];
+        let words = [];
+        let originalWords = [];
+        let currentWordIndex = 0;
+        let isRunning = false;
+        let startTimeMs = 0;
+
+        // ==================== NETTOYAGE DES MOTS ====================
+        // Supprime TOUTE la ponctuation (considérée comme MUETTE en français)
+        // La ponctuation n'est PAS lue et n'est PAS prise en compte dans la comparaison
+        // Gère : . , ; : ! ? " ' ( ) [ ] { } / \ | # $ % ^ & * etc.
+        // Gère aussi les guillemets français « » et les apostrophes typographiques
+        function cleanWord(word) {
+            return word
+                .replace(/[.,\/#!$%\^&\*;:{}=\_`~()\[\)\]\+\-?!"";:''""\u2018\u2019\u201C\u201D\u00AB\u00BB]/g, '')
+                .replace(/[\u00A0]/g, ' ')
+                .trim();
+        }
+
+        function normalizeWord(word) {
+            return cleanWord(word).toLowerCase().trim();
+        }
+
+        function getPhoneticKey(word) {
+            let w = cleanWord(word).toLowerCase();
+            // Vérifier si le mot finit par un e accentué AVANT de normaliser
+            const endsWithAccentedE = /[éèêë]$/.test(w);
+            
+            w = w.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (w.length === 0) return w;
+            
+            // Ne pas appliquer les règles de suppression pour les mots très courts (1-2 caractères)
+            // car ils sont souvent mal reconnus par la reconnaissance vocale
+            if (w.length <= 2) return w;
+            
+            if (w.endsWith('x')) w = w.slice(0, -1);
+            // Gestion des verbes à la 3ème personne du pluriel (-ent muet)
+            if (w.endsWith('ent') && w.length > 3) {
+                const entExceptions = ['vent', 'sang', 'rang', 'hang', 'temps', 'champ', 'cent', 'tent', 'ment', 'sent', 'parent', 'present', 'absent', 'frequent', 'recent', 'different'];
+                if (!entExceptions.includes(w)) w = w.slice(0, -3);
+            }
+            if (w.endsWith('e') && w.length > 2) {
+                // Ne pas supprimer le 'e' final si le mot original avait un accent sur le e
+                if (!endsWithAccentedE) {
+                    const shortExceptions = ['le', 'de', 'je', 'me', 'te', 'se', 'ne', 'ce', 're', 'que'];
+                    if (!shortExceptions.includes(w)) w = w.slice(0, -1);
+                }
+            }
+            if (w.endsWith('s') && w.length > 1) {
+                const sExceptions = ['as', 'os', 'bas', 'haut', 'pas', 'plus', 'les', 'des', 'mes', 'tes', 'ses', 'ces', 'gas', 'jas', 'fas'];
+                if (!sExceptions.includes(w)) w = w.slice(0, -1);
+            }
+            if (w.endsWith('t') && w.length > 1) {
+                const tExceptions = ['et', 'est', 'ut', 'ait', 'eut', 'fut', 'put'];
+                if (!tExceptions.includes(w)) w = w.slice(0, -1);
+            }
+            if (w.endsWith('d') && w.length > 2) {
+                const dExceptions = ['mardi', 'mercredi', 'vendredi', 'samedi', 'dimanche', 'second', 'troisième'];
+                if (!dExceptions.includes(w)) w = w.slice(0, -1);
+            }
+            if (w.endsWith('p') && w.length > 2) w = w.slice(0, -1);
+            if (w.endsWith('g') && w.length > 2) {
+                const gExceptions = ['mang', 'sang', 'rang', 'hang'];
+                if (!gExceptions.includes(w)) w = w.slice(0, -1);
+            }
+            if (w.endsWith('ps') && w.length > 3) w = w.slice(0, -2);
+            if (w.endsWith('mp') && w.length > 3) w = w.slice(0, -2);
+            if (w.endsWith('ns') && w.length > 3) w = w.slice(0, -2);
+            if (w.endsWith('h') && w.length > 1) w = w.slice(0, -1);
+            return w;
+        }
+
+        function compareWords(a, b) {
+            const normA = normalizeWord(a);
+            const normB = normalizeWord(b);
+            
+            // Règle stricte : si le mot prononcé est PLUS LONG que le mot attendu,
+            // c'est que l'élève a ajouté des lettres (ex: "amisse" au lieu de "amis")
+            // -> NE PAS VALIDER
+            if (normB.length > normA.length) {
+                return false;
+            }
+            
+            if (normA === normB) return true;
+            const commonErrors = {
+                // Mots courts (1-2 syllabes) souvent mal reconnus
+                'a': 'à', 'à': 'a', 'as': 'a', 'ah': 'a', 'ha': 'a', 'haa': 'a', 'aah': 'a',
+                'y': 'i', 'i': 'y',
+                'un': '1', '1': 'un', 'hum': 'un', 'um': 'un', 'uh': 'un',
+                'la': 'là', 'là': 'la',
+                'le': 'les', 'les': 'le',
+                'l': 'le', 'le': 'l',
+                'de': 'des', 'des': 'de', 'd': 'de',
+                'du': 'de', 'de': 'du',
+                'c': "c'est", "c'est": 'c',
+                's': "s'", "s'": 's',
+                'n': "n'", "n'": 'n',
+                'j': "j'", "j'": 'j',
+                'm': "m'", "m'": 'm',
+                't': "t'", "t'": 't',
+                'ce': 'se', 'se': 'ce',
+                'et': 'es', 'es': 'et',
+                'est': 'es', 'es': 'est',
+                'son': 'sont', 'sont': 'son',
+                'ou': 'où', 'où': 'ou',
+                'on': 'ont', 'ont': 'on',
+                'sa': 'ça', 'ça': 'sa',
+                'ces': 'ses', 'ses': 'ces',
+                'ce': 'cette', 'cette': 'ce',
+                'pompom': 'pompons', 'pompons': 'pompom',
+                'chapeau': 'chapeaux', 'chapeaux': 'chapeau',
+                'bateau': 'bateaux', 'bateaux': 'bateau',
+                'voile': 'voiles', 'voiles': 'voile',
+                'poisson': 'poissons', 'poissons': 'poisson',
+                'fée': 'fées', 'fées': 'fée',
+                'préparé': 'préparer', 'préparer': 'préparé',
+                'pirate': 'pirates', 'pirates': 'pirate',
+                'valet': 'valets', 'valets': 'valet',
+                'pompier': 'pompiers', 'pompiers': 'pompier',
+                'fou': 'fous', 'fous': 'fou',
+                'denté': 'dentés', 'dentés': 'denté'
+            };
+            if (commonErrors[normA] === normB) return true;
+            if (commonErrors[normB] === normA) return true;
+            const removeAccents = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (removeAccents(normA) === removeAccents(normB)) return true;
+            const phoneticA = getPhoneticKey(a);
+            const phoneticB = getPhoneticKey(b);
+            if (phoneticA === phoneticB) return true;
+            return false;
+        }
+
+        function loadSelectedText() {
+            const selectedValue = textSelect.value;
+            if (selectedValue === "") {
+                sourceText.value = "";
+                textLevelEl.style.display = 'none';
+                loadText("");
+                return;
+            }
+            const textObj = predefinedTexts.find(t => t.id.toString() === selectedValue);
+            if (textObj) {
+                sourceText.value = textObj.text;
+                textLevelEl.textContent = textObj.description;
+                textLevelEl.style.display = 'block';
+                const selectedOption = textSelect.options[textSelect.selectedIndex];
+                const level = selectedOption.getAttribute('data-level');
+                textLevelEl.textContent = level;
+                loadText(textObj.text);
+            }
+        }
+
+        function loadText(text) {
+            const rawText = text.trim();
+            // Supprimer les espaces avant la ponctuation pour les garder attachées aux mots
+            const normalizedText = rawText
+                .replace(/\s+([.,\/#!$%\^&\*;:{}=\_`~()\[\]\+\-?!;:'"\u2018\u2019\u201C\u201D\u00AB\u00BB])/g, '$1')
+                .replace(/\s+/g, ' ');
+            originalWords = normalizedText.split(' ').filter(word => word.length > 0);
+            words = originalWords.map(cleanWord);
+            console.log('Mots source:', words);
+            displayWords();
+        }
+
+        function displayWords() {
+            textContainer.innerHTML = '';
+            currentWordIndex = 0;
+            originalWords.forEach((word, index) => {
+                const wordSpan = document.createElement('span');
+                wordSpan.textContent = word;
+                wordSpan.className = 'word';
+                wordSpan.id = `word-${index}`;
+                wordSpan.onclick = () => playWordAudio(index);
+                textContainer.appendChild(wordSpan);
+            });
+            if (words.length > 0) {
+                document.getElementById(`word-0`).classList.add('current');
+            }
+            updateProgressInfo();
+        }
+
+        function playWordAudio(index) {
+            if (index < 0 || index >= originalWords.length) return;
+            const word = originalWords[index];
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 0.9;
+            speechSynthesis.speak(utterance);
+        }
+
+        function processTranscript(transcript) {
+            if (!isRunning) return;
+            transcriptEl.textContent = transcript;
+            currentTranscript = transcript;
+            const spokenWords = transcript.split(/\s+/).filter(word => word.length > 0).map(cleanWord);
+            console.log('Mots prononcés:', spokenWords);
+            console.log('Mot attendu:', currentWordIndex < words.length ? words[currentWordIndex] : 'FIN');
+            
+            // Pour les mots courts, vérifier aussi si le mot attendu apparaît dans la transcription complète
+            // (utiles quand la reconnaissance capte le mot mais avec d'autres mots autour)
+            const currentExpectedWord = currentWordIndex < words.length ? words[currentWordIndex] : null;
+            const isShortWord = currentExpectedWord && currentExpectedWord.length <= 2;
+            
+            // Si c'est un mot court et qu'il n'a pas été trouvé dans spokenWords
+            if (isShortWord && !spokenWords.some(w => compareWords(w, currentExpectedWord))) {
+                // Vérifier si le mot apparaît dans la transcription brute
+                const lowerTranscript = transcript.toLowerCase();
+                const expectedLower = currentExpectedWord.toLowerCase();
+                
+                // Vérifier avec compareWords sur des parties de la transcription
+                const transcriptWords = transcript.split(/\s+/).filter(w => w.length > 0);
+                for (const tw of transcriptWords) {
+                    if (compareWords(tw, currentExpectedWord)) {
+                        spokenWords.push(cleanWord(tw));
+                        break;
+                    }
+                }
+            }
+            
+            for (const spokenWord of spokenWords) {
+                if (currentWordIndex >= words.length) break;
+                const expectedWord = words[currentWordIndex];
+                if (compareWords(spokenWord, expectedWord)) {
+                    const wordElement = document.getElementById(`word-${currentWordIndex}`);
+                    if (wordElement && !wordElement.classList.contains('correct')) {
+                        wordElement.classList.remove('current');
+                        wordElement.classList.add('correct');
+                        currentWordIndex++;
+                        if (currentWordIndex < words.length) {
+                            document.getElementById(`word-${currentWordIndex}`).classList.add('current');
+                        }
+                        console.log(`Mot validé: ${expectedWord} -> ${spokenWord}`);
+                    }
+                } else {
+                    console.log(`Mot NON validé: attendu="${expectedWord}", prononcé="${spokenWord}"`);
+                }
+            }
+            updateLiveMetrics();
+            updateProgressInfo();
+        }
+
+        function updateProgressInfo() {
+            if (words.length === 0) {
+                progressInfoEl.style.display = 'none';
+                return;
+            }
+            const progress = Math.round((currentWordIndex / words.length) * 100);
+            progressInfoEl.textContent = `Progression : ${currentWordIndex}/${words.length} mots (${progress}%)`;
+            progressInfoEl.style.display = 'block';
+            if (currentWordIndex >= words.length) {
+                progressInfoEl.textContent = '✅ Tous les mots ont été validés !';
+                progressInfoEl.classList.add('progress-complete');
+            } else {
+                progressInfoEl.classList.remove('progress-complete');
+            }
+        }
+
+        function updateLiveMetrics() {
+            if (words.length === 0) return;
+            const durationSec = (Date.now() - startTimeMs) / 1000;
+            durationEl.textContent = durationSec > 0 ? `${durationSec.toFixed(1)} s` : '0.0 s';
+            wordsCountEl.textContent = currentWordIndex;
+            const wpm = durationSec > 0 ? Math.round(currentWordIndex / (durationSec / 60)) : 0;
+            wpmEl.textContent = wpm;
+            const accuracy = Math.round((currentWordIndex / words.length) * 100);
+            accuracyEl.textContent = `${accuracy}%`;
+        }
+
+        function init() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                statusEl.textContent = 'Votre navigateur ne supporte pas la reconnaissance vocale. Utilisez Chrome ou Edge.';
+                statusEl.className = 'status status-error';
+                startBtn.disabled = true;
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'fr-FR';
+            recognition.maxAlternatives = 1;
+            recognition.onresult = (event) => {
+                if (!isRunning) return;
+                let fullTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    fullTranscript += event.results[i][0].transcript + ' ';
+                }
+                processTranscript(fullTranscript.toLowerCase().trim());
+            };
+            recognition.onerror = (event) => {
+                if (event.error === 'not-allowed') {
+                    statusEl.textContent = '⚠️ Autorisez le micro via l\'icône 🔒 dans la barre d\'adresse.';
+                    statusEl.className = 'status status-error';
+                    stopReading();
+                } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                    statusEl.textContent = `Erreur: ${event.error}`;
+                    statusEl.className = 'status status-error';
+                }
+            };
+            recognition.onend = () => {
+                if (isRunning) {
+                    try {
+                        setTimeout(() => { if (isRunning) recognition.start(); }, 100);
+                    } catch (e) {}
+                }
+            };
+            startBtn.addEventListener('click', startReading);
+            stopBtn.addEventListener('click', stopReading);
+            resetBtn.addEventListener('click', resetApp);
+            textSelect.addEventListener('change', loadSelectedText);
+            if (sourceText.value.trim()) { loadText(sourceText.value); }
+            renderHistory();
+        }
+
+        function startReading() {
+            if (isRunning) return;
+            currentWordIndex = 0;
+            startTimeMs = Date.now();
+            currentTranscript = '';
+            transcriptEl.textContent = '';
+            displayWords();
+            isRunning = true;
+            isRecording = true;
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'flex';
+            resetBtn.disabled = false;
+            recognitionIndicator.textContent = "🎤 Écoute en cours...";
+            recognitionIndicator.classList.add('active');
+            statusEl.textContent = '🎤 Enregistrement en cours... Lisez le mot en JAUNE';
+            statusEl.className = 'status status-recording';
+            try {
+                recognition.start();
+            } catch (e) {
+                statusEl.textContent = 'Impossible de démarrer. Vérifiez les permissions.';
+                statusEl.className = 'status status-error';
+                isRunning = false;
+                isRecording = false;
+                startBtn.style.display = 'flex';
+                stopBtn.style.display = 'none';
+                recognitionIndicator.classList.remove('active');
+                console.error(e);
+            }
+        }
+
+        function stopReading() {
+            if (!isRunning) return;
+            isRunning = false;
+            isRecording = false;
+            endTime = Date.now();
+            try { recognition.stop(); } catch (e) {}
+            startBtn.style.display = 'flex';
+            stopBtn.style.display = 'none';
+            recognitionIndicator.textContent = "Micro inactif";
+            recognitionIndicator.classList.remove('active');
+            if (currentWordIndex >= words.length) {
+                statusEl.textContent = '✅ Tous les mots validés !';
+                statusEl.className = 'status status-recording';
+            } else {
+                statusEl.textContent = '✅ Enregistrement terminé';
+                statusEl.className = 'status status-stopped';
+            }
+            saveToHistory();
+        }
+
+        function resetApp() {
+            if (isRunning) { stopReading(); }
+            currentWordIndex = 0;
+            currentTranscript = '';
+            transcriptEl.textContent = '';
+            startBtn.style.display = 'flex';
+            stopBtn.style.display = 'none';
+            resetBtn.disabled = true;
+            recognitionIndicator.textContent = "Micro inactif";
+            recognitionIndicator.classList.remove('active');
+            displayWords();
+            durationEl.textContent = '0.0 s';
+            wordsCountEl.textContent = '0';
+            wpmEl.textContent = '0';
+            accuracyEl.textContent = '-';
+            statusEl.textContent = 'Prêt à démarrer';
+            statusEl.className = 'status status-stopped';
+        }
+
+        function saveToHistory() {
+            const source = sourceText.value.trim();
+            const transcript = currentTranscript.trim();
+            if (!source || !isRecording) return;
+            const durationSec = (endTime - startTimeMs) / 1000;
+            const validatedCount = currentWordIndex;
+            const wpm = durationSec > 0 ? Math.round(validatedCount / (durationSec / 60)) : 0;
+            const accuracy = words.length > 0 ? Math.round((validatedCount / words.length) * 100) : 0;
+            const testResult = {
+                id: Date.now(),
+                date: new Date().toLocaleString('fr-FR'),
+                sourceText: source,
+                transcript: transcript,
+                duration: durationSec,
+                wordsCount: validatedCount,
+                wpm: wpm,
+                accuracy: accuracy,
+                correctWords: validatedCount,
+                errors: words.length - validatedCount
+            };
+            testHistory.unshift(testResult);
+            if (testHistory.length > 10) { testHistory = testHistory.slice(0, 10); }
+            localStorage.setItem('fluenceHistory', JSON.stringify(testHistory));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            if (testHistory.length === 0) {
+                historyList.innerHTML = '<p style="color: #7f8c8d; font-style: italic;">Aucun test enregistré pour le moment.</p>';
+                return;
+            }
+            testHistory.forEach((test, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                const accuracyClass = test.accuracy >= 90 ? '🟢' : test.accuracy >= 70 ? '🟡' : '🔴';
+                historyItem.innerHTML = `
+                    <div class="history-date">Test n°${testHistory.length - index} - ${test.date} ${accuracyClass}</div>
+                    <div><strong>Vitesse:</strong> ${test.wpm} mots/min | <strong>Précision:</strong> ${test.accuracy}%</div>
+                    <div style="margin-top: 5px; font-size: 0.9em;">
+                        <strong>Texte:</strong> ${test.sourceText.substring(0, 50)}${test.sourceText.length > 50 ? '...' : ''}
+                    </div>
+                    <button onclick="loadTestFromHistory(${test.id})" style="margin-top: 8px; padding: 4px 8px; font-size: 0.85em; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Revoir
+                    </button>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        function loadTestFromHistory(testId) {
+            const test = testHistory.find(t => t.id === testId);
+            if (!test) return;
+            sourceText.value = test.sourceText;
+            transcriptEl.textContent = test.transcript;
+            durationEl.textContent = `${test.duration.toFixed(1)} s`;
+            wordsCountEl.textContent = test.wordsCount;
+            wpmEl.textContent = test.wpm;
+            accuracyEl.textContent = `${test.accuracy}%`;
+            statusEl.textContent = 'Test chargé depuis l\'historique';
+            statusEl.className = 'status status-stopped';
+            loadText(test.sourceText);
+            currentWordIndex = test.wordsCount;
+            for (let i = 0; i < currentWordIndex; i++) {
+                const wordEl = document.getElementById(`word-${i}`);
+                if (wordEl) {
+                    wordEl.classList.remove('current');
+                    wordEl.classList.add('correct');
+                }
+            }
+            if (currentWordIndex < words.length) {
+                document.getElementById(`word-${currentWordIndex}`).classList.add('current');
+            }
+            updateProgressInfo();
+        }
+
+        function exportResults() {
+            const source = sourceText.value.trim();
+            const transcript = currentTranscript.trim();
+            if (!source) {
+                alert('Aucun résultat à exporter. Effectuez d\'abord un test.');
+                return;
+            }
+            const durationSec = (endTime - startTimeMs) / 1000;
+            const validatedCount = currentWordIndex;
+            const wpm = durationSec > 0 ? Math.round(validatedCount / (durationSec / 60)) : 0;
+            const accuracy = words.length > 0 ? Math.round((validatedCount / words.length) * 100) : 0;
+            const exportData = {
+                metadata: {
+                    app: 'Fluence Automatique',
+                    version: '3.0',
+                    date: new Date().toISOString(),
+                    language: 'fr-FR',
+                    mode: 'validation_instantanee'
+                },
+                test: {
+                    sourceText: source,
+                    transcript: transcript,
+                    durationSeconds: durationSec,
+                    wordsValidated: validatedCount,
+                    totalWords: words.length,
+                    statistics: {
+                        wordsCount: validatedCount,
+                        wordsPerMinute: wpm,
+                        accuracy: accuracy,
+                        correctWords: validatedCount,
+                        errors: words.length - validatedCount
+                    }
+                }
+            };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fluence_test_${new Date().toLocaleDateString('fr-FR')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function copyResults() {
+            const source = sourceText.value.trim();
+            const transcript = currentTranscript.trim();
+            if (!source) {
+                alert('Aucun résultat à copier. Effectuez d\'abord un test.');
+                return;
+            }
+            const durationSec = (endTime - startTimeMs) / 1000;
+            const validatedCount = currentWordIndex;
+            const wpm = durationSec > 0 ? Math.round(validatedCount / (durationSec / 60)) : 0;
+            const accuracy = words.length > 0 ? Math.round((validatedCount / words.length) * 100) : 0;
+            const textToCopy = `
+=== Résultats Fluence Automatique v3.0 ===
+
+Date: ${new Date().toLocaleString('fr-FR')}
+
+--- Texte source ---
+${source}
+
+--- Transcription ---
+${transcript}
+
+--- Statistiques ---
+Durée: ${durationSec.toFixed(1)} secondes
+Mots validés: ${validatedCount}/${words.length}
+Vitesse: ${wpm} mots/minute
+Précision: ${accuracy}%
+
+=== Fin des résultats ===
+            `;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                statusEl.textContent = '✅ Résultats copiés dans le presse-papiers!';
+                statusEl.className = 'status status-stopped';
+                setTimeout(() => { if (!isRunning) { statusEl.textContent = 'Prêt à démarrer'; } }, 2000);
+            }).catch(err => {
+                console.error('Erreur lors de la copie:', err);
+                statusEl.textContent = '❌ Erreur lors de la copie';
+                statusEl.className = 'status status-error';
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
