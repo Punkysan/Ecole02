@@ -1,0 +1,10 @@
+sources des fonts
+
+OpenDys
+https://www.dafont.com/fr/open-dyslexic.font
+
+BelleAllure
+https://www.dafont.com/fr/belle-allure.font
+
+BebasNeue
+https://www.dafont.com/bebas-neue.font?fpp=200&l[]=10&l[]=1
