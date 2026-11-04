@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calcul mental CP — Répartition hebdomadaire</title>
+<link rel="icon" type="image/x-icon" href="img/favicon.ico"/>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ---------- Modèle ----------
+const OFFSETS = [0, 1, 4, 26]; // thème de la semaine, semaine −1, −4, −26
+// Proportions par défaut (parts) : 1 rappel : 2/3 + 1/3 · 2 rappels : 4/6 + 1/6 + 1/6 · 3 rappels : 6/9 + 1/9 + 1/9 + 1/9
+const DEFAULT_PARTS = {
+  1: [2, 1, 0, 0],
+  2: [4, 1, 1, 0],
+  3: [6, 1, 1, 1],
+};
+// Lundi par défaut : 100 % thème de la semaine (modifiable par régime dans Réglages)
+const DEFAULT_MONDAY = {
+  1: [1, 0, 0, 0],
+  2: [1, 0, 0, 0],
+  3: [1, 0, 0, 0],
+};
+// Vendredi par défaut : mêmes proportions que mardi/jeudi (modifiable par régime dans Réglages)
+const DEFAULT_FRIDAY = {
+  1: [2, 1, 0, 0],
+  2: [4, 1, 1, 0],
+  3: [6, 1, 1, 1],
+};
+
+// Répartit `total` calculs proportionnellement aux parts (plus fort reste) :
+// la somme fait toujours exactement `total`, proportions conservées.
+function distribute(weights, total) {
+  const s = weights.reduce((a, b) => a + b, 0);
+  if (s === 0) return [total, 0, 0, 0];
+  const raw = weights.map((v) => (v / s) * total);
+  const out = raw.map(Math.floor);
+  let rem = total - out.reduce((a, b) => a + b, 0);
+  raw
+    .map((r, i) => ({ i, frac: r - Math.floor(r) }))
+    .sort((a, b) => b.frac - a.frac)
+    .forEach(({ i }, k) => {
+      if (k < rem) out[i] += 1;
+    });
+  return out;
+}
+
+const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+const frac = (p, s) => {
+  const g = gcd(p, s) || 1;
+  return `${p / g}/${s / g}`;
+};
+const SLOT_LABELS = ["Courant", "J+7", "J+30", "J+180"];
+const REGIME_PERIODS = ["S2 à S4", "S5 à S26", "dès S27"];
+const proportions = (p) => {
+  const s = p.reduce((a, b) => a + b, 0);
+  return p
+    .map((v, i) => (v > 0 ? `${frac(v, s)} ${["courant", "J+7", "J+30", "J+180"][i]}` : null))
+    .filter(Boolean)
+    .join(" + ");
+};
+
+// ---------- État ----------
+let total = 25;
+let nbWeeks = 36;
+let parts = { 1: [...DEFAULT_PARTS[1]], 2: [...DEFAULT_PARTS[2]], 3: [...DEFAULT_PARTS[3]] };
+let mondayParts = { 1: [...DEFAULT_MONDAY[1]], 2: [...DEFAULT_MONDAY[2]], 3: [...DEFAULT_MONDAY[3]] };
+let fridayParts = { 1: [...DEFAULT_FRIDAY[1]], 2: [...DEFAULT_FRIDAY[2]], 3: [...DEFAULT_FRIDAY[3]] };
+let tab = "weeks";
+
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+const setPart = (r, i, v) => { parts = { ...parts, [r]: parts[r].map((x, j) => (j === i ? v : x)) }; };
+const setMonday = (r, i, v) => { mondayParts = { ...mondayParts, [r]: mondayParts[r].map((x, j) => (j === i ? v : x)) }; };
+const setFriday = (r, i, v) => { fridayParts = { ...fridayParts, [r]: fridayParts[r].map((x, j) => (j === i ? v : x)) }; };
+// Rythme Ebbinghaus fixe : J+7 dès S2, J+30 dès S5, J+180 dès S27.
+const nbRecalls = (w) => (w >= 2 ? 1 : 0) + (w >= 5 ? 1 : 0) + (w >= 27 ? 1 : 0);
+
+// Lundi et vendredi : proportions propres au régime (lundi 100 % thème de la semaine par défaut). Mardi et jeudi : proportions du nombre de rappels actifs.
+const dayQuotas = (w, dayIdx) => {
+  const r = nbRecalls(w);
+  if (r === 0) return [total, 0, 0, 0];
+  if (dayIdx === 0) return distribute(mondayParts[Math.min(r, 3)], total);
+  if (dayIdx === 3) return distribute(fridayParts[Math.min(r, 3)], total);
+  return distribute(parts[Math.min(r, 3)], total);
+};
+
+const comp = (w, q) => {
+  const items = [];
+  q.forEach((n, i) => {
+    if (n > 0) items.push({ n, t: w - OFFSETS[i] });
+  });
+  if (items.length === 0) return "—";
+  return items
+    .map((it, k) => (k > 0 ? " + " : "") + `<span class="font-semibold">${it.n}</span> × T${it.t}`)
+    .join("");
+};
+
+const changeWeeks = (n) => { nbWeeks = n; };
+
+// ---------- Données ----------
+const weeks = () =>
+  Array.from({ length: nbWeeks }, (_, k) => {
+    const w = k + 1;
+    return { w, lun: dayQuotas(w, 0), maj: dayQuotas(w, 1), ven: dayQuotas(w, 3), regime: nbRecalls(w) };
+  });
+
+const reset = () => {
+  total = 25;
+  nbWeeks = 36;
+  resetParts();
+};
+
+const resetParts = () => {
+  parts = { 1: [...DEFAULT_PARTS[1]], 2: [...DEFAULT_PARTS[2]], 3: [...DEFAULT_PARTS[3]] };
+  mondayParts = { 1: [...DEFAULT_MONDAY[1]], 2: [...DEFAULT_MONDAY[2]], 3: [...DEFAULT_MONDAY[3]] };
+  fridayParts = { 1: [...DEFAULT_FRIDAY[1]], 2: [...DEFAULT_FRIDAY[2]], 3: [...DEFAULT_FRIDAY[3]] };
+};
+
+// ---------- Rendu ----------
+const slotRowsHTML = (vals, nbSlots, kind, r) =>
+  vals.slice(0, nbSlots).map((v, i) => `
+      <label class="flex items-center justify-between gap-2 border-b border-slate-50 py-1 text-xs last:border-b-0">
+        <span class="font-medium text-slate-600">${SLOT_LABELS[i]}</span>
+        <span class="flex items-center gap-1.5">
+          <input
+            type="number"
+            min="0"
+            max="99"
+            value="${v}"
+            data-kind="${kind}"
+            data-r="${r}"
+            data-i="${i}"
+            class="w-14 rounded border border-slate-300 px-1.5 py-1 text-center tabular-nums"
+          />
+          <span class="w-8 text-slate-400">part${v > 1 ? "s" : ""}</span>
+        </span>
+      </label>`).join("");
+
+const regimeBadge = (n) => {
+  const styles = ["bg-slate-100 text-slate-400", "bg-amber-100 text-amber-700", "bg-sky-100 text-sky-700", "bg-violet-100 text-violet-700"];
+  return `<span class="ml-1 rounded px-1 text-[9px] font-semibold ${styles[n]}">${n === 0 ? "" : `${n} rappel${n > 1 ? "s" : ""}`}</span>`;
+};
+
+const tableHTML = () => `
+      <table class="w-full text-[11px] leading-snug tabular-nums">
+        <thead>
+          <tr class="border-b-2 border-slate-300 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <th class="py-1.5 pr-2">S</th>
+            <th class="py-1.5 pr-4">Thème</th>
+            <th class="py-1.5 pr-4">Lundi</th>
+            <th class="py-1.5 pr-4">Mardi &amp; jeudi</th>
+            <th class="py-1.5">Vendredi</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${weeks().map(({ w, lun, maj, ven, regime }) => {
+            const boundary = w === 2 || w === 5 || w === 27;
+            return `
+              <tr class="border-b border-slate-100 ${boundary ? "bg-indigo-100/70 font-semibold" : w % 2 ? "bg-white" : "bg-slate-50"}">
+                <td class="whitespace-nowrap py-[2px] pr-2">${w}${regimeBadge(regime)}</td>
+                <td class="whitespace-nowrap py-[2px] pr-4 font-medium">Thème ${w}</td>
+                <td class="whitespace-nowrap py-[2px] pr-4">${comp(w, lun)}</td>
+                <td class="whitespace-nowrap py-[2px] pr-4">${comp(w, maj)}</td>
+                <td class="whitespace-nowrap py-[2px]">${comp(w, ven)}</td>
+              </tr>`;
+          }).join("")}
+        </tbody>
+      </table>`;
+
+const previewHTML = (r) => {
+  const nbSlots = r + 1;
+  const line = (label, p) => `
+                      <div>
+                        <span class="text-slate-400">${label} :</span>
+                        <span class="font-semibold text-indigo-700">${proportions(p)}</span>
+                        → à ${total} : <span class="font-semibold">${distribute(p, total).slice(0, nbSlots).filter((v) => v > 0).join(" + ")}</span>
+                      </div>`;
+  return `
+                    <div class="mt-2 space-y-1 border-t border-slate-100 pt-2 text-[11px] leading-snug text-slate-500">${line("Lundi", mondayParts[r])}${line("Mardi…", parts[r])}${line("Vendredi", fridayParts[r])}</div>`;
+};
+
+const settingsHTML = () => `
+          <div class="py-3">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+              ${[1, 2, 3].map((r) => {
+                const nbSlots = r + 1;
+                return `
+                  <div class="rounded-lg border border-slate-200 bg-white p-3">
+                    <div class="mb-2 text-sm font-bold text-slate-700">
+                      ${r} rappel${r > 1 ? "s" : ""}
+                      <span class="ml-1.5 text-xs font-normal text-slate-400">· ${REGIME_PERIODS[r - 1]}</span>
+                    </div>
+                    <div class="mb-2">
+                      <div class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Lundi</div>
+                      ${slotRowsHTML(mondayParts[r], nbSlots, "monday", r)}
+                    </div>
+                    <div class="border-t border-slate-100 pt-1">
+                      <div class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Mardi · jeudi</div>
+                      ${slotRowsHTML(parts[r], nbSlots, "part", r)}
+                    </div>
+                    <div class="mt-2 border-t border-slate-100 pt-1">
+                      <div class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Vendredi</div>
+                      ${slotRowsHTML(fridayParts[r], nbSlots, "friday", r)}
+                    </div>
+                    <div class="apercu" data-r="${r}">${previewHTML(r)}</div>
+                  </div>`;
+              }).join("")}
+            </div>
+            <div class="mt-3 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-400">
+              <button
+                id="reset-parts"
+                class="rounded border border-slate-300 px-2.5 py-1 font-medium text-slate-600 hover:bg-slate-50"
+              >
+                ↺ Proportions par défaut
+              </button>
+            </div>
+          </div>`;
+
+const renderContent = () => {
+  const c = document.getElementById("content");
+  c.innerHTML = tab === "weeks" ? tableHTML() : settingsHTML();
+};
+
+const syncTabs = () => {
+  const weeks = document.getElementById("tab-weeks");
+  const settings = document.getElementById("tab-settings");
+  weeks.className = `rounded px-3 py-1 text-xs font-medium ${tab === "weeks" ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600"}`;
+  settings.className = `rounded px-3 py-1 text-xs font-medium ${tab === "settings" ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600"}`;
+};
+
+const refresh = () => {
+  document.getElementById("titre-semaines").textContent = nbWeeks;
+  document.getElementById("total-val").textContent = total;
+  document.getElementById("total").value = total;
+  document.getElementById("nbweeks").value = nbWeeks;
+  syncTabs();
+  renderContent();
+};
+
+const updatePreviews = () => {
+  document.querySelectorAll(".apercu").forEach((d) => {
+    d.innerHTML = previewHTML(+d.dataset.r);
+  });
+};
+
+// ---------- Coquille ----------
+document.getElementById("app").innerHTML = `
+    <div class="min-h-screen bg-slate-100 text-slate-800">
+      <div class="sticky top-0 z-20 border-b border-slate-200 bg-white px-4 py-2 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <span class="text-sm font-bold">Calcul mental CP — <span id="titre-semaines">${nbWeeks}</span> semaines</span>
+          <div class="flex items-center gap-1.5">
+            <a href="index.html" title="Accueil" class="rounded px-2 py-1 hover:bg-slate-100">
+              <img src="img/house-fill.svg" alt="Accueil" class="h-5 w-5"/>
+            </a>
+            <button id="tab-weeks" class="rounded px-3 py-1 text-xs font-medium">Semaines</button>
+            <button id="tab-settings" class="rounded px-3 py-1 text-xs font-medium">Réglages</button>
+          </div>
+        </div>
+        <div class="mt-2 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-xs">
+          <label class="flex items-center gap-2 font-semibold text-slate-600">
+            Calculs / jour
+            <input id="total" type="range" min="10" max="40" value="${total}" class="w-36 accent-indigo-600"/>
+            <span id="total-val" class="w-6 text-sm font-bold text-indigo-700">${total}</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-500">
+            Semaines
+            <input id="nbweeks" type="number" min="20" max="40" value="${nbWeeks}" class="w-12 rounded border border-slate-300 px-1 py-0.5 text-center"/>
+          </label>
+          <button id="reset" class="rounded border border-slate-300 px-2.5 py-1 font-medium text-slate-600 hover:bg-slate-50">↺ Défaut</button>
+        </div>
+      </div>
+      <div class="px-4 py-1">
+        <div id="content"></div>
+      </div>
+    </div>`;
+
+document.getElementById("total").addEventListener("input", (e) => {
+  total = parseInt(e.target.value, 10);
+  refresh();
+});
+document.getElementById("nbweeks").addEventListener("input", (e) => {
+  changeWeeks(clamp(parseInt(e.target.value, 10) || 20, 20, 40));
+  refresh();
+});
+document.getElementById("reset").addEventListener("click", () => {
+  reset();
+  refresh();
+});
+document.getElementById("tab-weeks").addEventListener("click", () => {
+  tab = "weeks";
+  refresh();
+});
+document.getElementById("tab-settings").addEventListener("click", () => {
+  tab = "settings";
+  refresh();
+});
+
+const content = document.getElementById("content");
+content.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.matches("input[data-kind]")) {
+    const v = clamp(parseInt(t.value, 10) || 0, 0, 99);
+    const r = +t.dataset.r;
+    const i = +t.dataset.i;
+    if (t.dataset.kind === "part") setPart(r, i, v);
+    else if (t.dataset.kind === "monday") setMonday(r, i, v);
+    else setFriday(r, i, v);
+    updatePreviews();
+  }
+});
+content.addEventListener("click", (e) => {
+  if (e.target.closest("#reset-parts")) {
+    resetParts();
+    refresh();
+  }
+});
+
+refresh();
+</script>
+</body>
+</html>
